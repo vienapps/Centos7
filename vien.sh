@@ -1,3 +1,10 @@
+#!/bin/bash
+
+if [[ "$USER" != 'root' ]]; then
+	echo "Maaf, Anda harus menjalankan ini sebagai root !!!"
+	exit
+fi
+
 wget http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 rpm -ivh epel-release-latest-7.noarch.rpm
 
