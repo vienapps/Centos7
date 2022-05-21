@@ -16,11 +16,11 @@ yum -y upgrade
 yum install sudo -y
 yum install -y epel-release
 yum -y install nano
-yum install curl -y
-yum -y install wget
+yum -y install curl
 yum -y install firewalld
 yum -y install openssh-server openssh-clients
-yum install ntp -yyum -y install centos-release-scl
+yum -y install ntp
+yum -y install centos-release-scl
 yum -y install make gcc perl-core pcre-devel wget zlib-devel
 yum makecache
 yum repolist
