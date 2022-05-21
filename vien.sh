@@ -13,8 +13,8 @@ rpm -ivh remi-release-7.rpm
 
 yum -y update
 yum -y upgrade
-yum install sudo -y
-yum install -y epel-release
+yum -y install sudo -y
+yum -y install epel-release
 yum -y install nano
 yum -y install curl
 yum -y install firewalld
@@ -30,6 +30,7 @@ systemctl enable sshd.service
 systemctl start firewalld
 systemctl enable firewalld
 firewall-cmd --reload
+systemctl restart sshd.service
 yum clean all
 yum clean dbcache
 rm -rf /var/cache/yum
