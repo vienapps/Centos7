@@ -24,6 +24,7 @@ rpm -ivh remi-release-7.rpm
 yum -y update
 yum -y upgrade
 yum -y install sudo
+yum -y install nano
 yum -y install epel-release
 yum -y install curl
 yum -y install firewalld
