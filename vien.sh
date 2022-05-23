@@ -25,7 +25,6 @@ yum -y update
 yum -y upgrade
 yum -y install sudo
 yum -y install epel-release
-yum -y install nano
 yum -y install curl
 yum -y install firewalld
 yum -y install openssh-server openssh-clients
