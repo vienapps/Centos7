@@ -49,8 +49,8 @@ wget https://rpms.remirepo.net/enterprise/remi-release-7.rpm
 rpm -ivh remi-release-7.rpm
 yum clean all
 yum clean dbcache
+rm -rf epel-release-latest-7.noarch.rpm
+rm -rf remi-release-7.rpm
+rm -rf vien.sh
 rm -rf /var/cache/yum
 rm -rf /tmp/*
-rm -f epel-release-latest-7.noarch.rpm
-rm -f remi-release-7.rpm
-rm -f vien.sh
