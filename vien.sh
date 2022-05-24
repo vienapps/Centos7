@@ -1,4 +1,10 @@
 #!/bin/bash
+clear
+echo "###################################################################"
+echo "                     MULAI INSTALASI !!                            "
+echo "                    Script By HARVIEN !!                           "
+echo "###################################################################"
+sleep 15
 
 if [[ "$USER" != 'root' ]]; then
 	echo "Maaf, Anda harus menjalankan ini sebagai root !!!"
@@ -65,3 +71,8 @@ cd
 rm -rf /root/vien.sh
 rm -rf /var/cache/yum
 rm -rf /tmp/*
+clear
+echo "###################################################################"
+echo "                    INSTALASI SELESAI !!                           "
+echo "                    Script By HARVIEN !!                           "
+echo "###################################################################"
