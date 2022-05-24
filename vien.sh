@@ -9,7 +9,7 @@ wget -O /etc/environment "https://raw.githubusercontent.com/vienapp/Centos7/mast
 sleep 2
 
 echo "###################################################################"
-echo "                		 Install NTP LOKAL                            "
+echo "                      Install NTP LOKAL                            "
 echo "###################################################################"
 cd
 yum -y install ntp
@@ -21,16 +21,16 @@ timedatectl
 sleep 2
 
 echo "###################################################################"
-echo "                		 Install Repository                           "
+echo "                	    Install Repository                           "
 echo "###################################################################"
 cd
-yum localinstall --nogpgcheck https://raw.githubusercontent.com/vienapp/Centos7/master/rpmfusion-free-release-7.noarch.rpm
-yum localinstall --nogpgcheck https://raw.githubusercontent.com/vienapp/Centos7/master/rpmfusion-nonfree-release-7.noarch.rpm
-yum localinstall --nogpgcheck https://raw.githubusercontent.com/vienapp/Centos7/master/epel-release-7-14.noarch.rpm
-yum localinstall --nogpgcheck https://raw.githubusercontent.com/vienapp/Centos7/master/remi-release-7.9.rpm
+yum -y localinstall --nogpgcheck https://raw.githubusercontent.com/vienapp/Centos7/master/rpmfusion-free-release-7.noarch.rpm
+yum -y localinstall --nogpgcheck https://raw.githubusercontent.com/vienapp/Centos7/master/rpmfusion-nonfree-release-7.noarch.rpm
+yum -y localinstall --nogpgcheck https://raw.githubusercontent.com/vienapp/Centos7/master/epel-release-7-14.noarch.rpm
+yum -y localinstall --nogpgcheck https://raw.githubusercontent.com/vienapp/Centos7/master/remi-release-7.9.rpm
 rpm --import https://raw.githubusercontent.com/vienapp/Centos7/master/RPM-GPG-KEY-elrepo.org
 rpm -Uvh https://raw.githubusercontent.com/vienapp/Centos7/master/elrepo-release-7.0-3.el7.elrepo.noarch.rpm
-yum localinstall --nogpgcheck https://raw.githubusercontent.com/vienapp/Centos7/master/webtatic-release.rpm
+yum -y localinstall --nogpgcheck https://raw.githubusercontent.com/vienapp/Centos7/master/webtatic-release.rpm
 sleep 2
 
 yum clean all
@@ -50,7 +50,7 @@ yum -y update
 yum -y upgrade
 
 echo "###################################################################"
-echo "                				Install Paket                           "
+echo "                		 Install Paket                           "
 echo "###################################################################"
 cd
 yum -y install sudo nano curl firewalld openssh-server openssh-clients
