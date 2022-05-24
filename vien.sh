@@ -39,7 +39,7 @@ yum -y localinstall --nogpgcheck https://raw.githubusercontent.com/vienapp/Cento
 sleep 2
 
 yum clean all
-yum update
+yum -y update
 yum -y install yum-utils
 yum -y install yum-plugin-fastestmirror
 yum -y install yum-plugin-priorities
