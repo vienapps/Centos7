@@ -5,6 +5,18 @@ if [[ "$USER" != 'root' ]]; then
 	exit
 fi
 
+wget -O /etc/environment "https://raw.githubusercontent.com/vienapp/Centos7/master/environment"
+
+yum -y install ntp
+wget -O /etc/ntp.conf "https://raw.githubusercontent.com/vienapp/Centos7/master/ntp.conf"
+systemctl enable ntpd && systemctl start ntpd
+ntpq -p
+timedatectl set-timezone Asia/Jakarta
+timedatectl
+
+export LANG=en_US.UTF-8 && export LANGUAGE=en_US.UTF-8 && export LC_COLLATE=C && export LC_CTYPE=en_US.UTF-8 && yum check
+
+yum -y install yum-plugin-fastestmirror
 yum -y install yum-plugin-priorities
 sed -i -e "s/\]$/\]\npriority=1/g" /etc/yum.repos.d/CentOS-Base.repo
 yum -y install epel-release
@@ -14,43 +26,24 @@ sed -i -e "s/\]$/\]\npriority=10/g" /etc/yum.repos.d/CentOS-SCLo-scl.repo
 sed -i -e "s/\]$/\]\npriority=10/g" /etc/yum.repos.d/CentOS-SCLo-scl-rh.repo
 yum -y install http://rpms.famillecollet.com/enterprise/remi-release-7.rpm
 sed -i -e "s/\]$/\]\npriority=10/g" /etc/yum.repos.d/remi-safe.repo
-
-wget http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-rpm -ivh epel-release-latest-7.noarch.rpm
-
-wget https://rpms.remirepo.net/enterprise/remi-release-7.rpm
-rpm -ivh remi-release-7.rpm
+yum -y install centos-release-scl
+yum -y install make gcc perl-core pcre-devel wget zlib-devel
+yum --disablerepo="*" --enablerepo="epel" list available
 
 yum -y update
 yum -y upgrade
-yum -y install sudo
-yum -y install nano
-yum -y install epel-release
-yum -y install curl
-yum -y install firewalld
-yum -y install openssh-server openssh-clients
-yum -y install ntp
-yum -y install centos-release-scl
-yum -y install make gcc perl-core pcre-devel wget zlib-devel
-yum makecache
-yum repolist
-yum --disablerepo="*" --enablerepo="epel" list available
+yum -y install sudo nano curl firewalld openssh-server openssh-clients
 systemctl start sshd.service
 systemctl enable sshd.service
 systemctl start firewalld
 systemctl enable firewalld
 firewall-cmd --reload
 systemctl restart sshd.service
-rm -f epel-release-latest-7.noarch.rpm
-rm -f remi-release-7.rpm
-wget http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-rpm -ivh epel-release-latest-7.noarch.rpm
-wget https://rpms.remirepo.net/enterprise/remi-release-7.rpm
-rpm -ivh remi-release-7.rpm
+yum makecache
 yum clean all
 yum clean dbcache
-rm -rf epel-release-latest-7.noarch.rpm
-rm -rf remi-release-7.rpm
+yum -y update
+yum -y upgrade
 rm -rf vien.sh
 rm -rf /var/cache/yum
 rm -rf /tmp/*
