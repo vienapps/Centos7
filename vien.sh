@@ -5,11 +5,16 @@ if [[ "$USER" != 'root' ]]; then
 	exit
 fi
 
+cd
+rm -rf /root/vien.sh
+rm -rf /var/cache/yum
+rm -rf /tmp/*
+
 wget -O /etc/environment "https://raw.githubusercontent.com/vienapp/Centos7/master/environment"
 sleep 2
 
 echo "###################################################################"
-echo "                      Install NTP LOKAL                            "
+echo "                		 Install NTP LOKAL                            "
 echo "###################################################################"
 cd
 yum -y install ntp
@@ -21,7 +26,7 @@ timedatectl
 sleep 2
 
 echo "###################################################################"
-echo "                	    Install Repository                           "
+echo "                		 Install Repository                           "
 echo "###################################################################"
 cd
 yum -y localinstall --nogpgcheck https://raw.githubusercontent.com/vienapp/Centos7/master/rpmfusion-free-release-7.noarch.rpm
@@ -50,7 +55,7 @@ yum -y update
 yum -y upgrade
 
 echo "###################################################################"
-echo "                		 Install Paket                           "
+echo "                				Install Paket                           "
 echo "###################################################################"
 cd
 yum -y install sudo nano curl firewalld openssh-server openssh-clients
