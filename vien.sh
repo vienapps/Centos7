@@ -68,9 +68,13 @@ systemctl start firewalld
 systemctl enable firewalld
 systemctl restart firewalld
 
-yum -y update
-yum -y upgrade
+echo "###################################################################"
+echo "                           Pembersihan                             "
+echo "###################################################################"
+sleep 10
 cd
 rm -rf /root/vien.sh
 rm -rf /var/cache/yum
 rm -rf /tmp/*
+yum clean all
+sleep 10
