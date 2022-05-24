@@ -30,16 +30,6 @@ echo "###################################################################"
 echo "                      Install Repository                           "
 echo "###################################################################"
 cd
-yum -y localinstall --nogpgcheck https://raw.githubusercontent.com/vienapp/Centos7/master/rpmfusion-free-release-7.noarch.rpm
-yum -y localinstall --nogpgcheck https://raw.githubusercontent.com/vienapp/Centos7/master/rpmfusion-nonfree-release-7.noarch.rpm
-yum -y localinstall --nogpgcheck https://raw.githubusercontent.com/vienapp/Centos7/master/epel-release-7-14.noarch.rpm
-yum -y localinstall --nogpgcheck https://raw.githubusercontent.com/vienapp/Centos7/master/remi-release-7.9.rpm
-rpm --import https://raw.githubusercontent.com/vienapp/Centos7/master/RPM-GPG-KEY-elrepo.org
-yum -y localinstall --nogpgcheck https://raw.githubusercontent.com/vienapp/Centos7/master/webtatic-release.rpm
-sleep 2
-
-yum clean all
-yum -y update
 yum -y install yum-utils
 yum -y install yum-plugin-fastestmirror
 yum -y install yum-plugin-priorities
@@ -51,8 +41,7 @@ sed -i -e "s/\]$/\]\npriority=10/g" /etc/yum.repos.d/CentOS-SCLo-scl.repo
 sed -i -e "s/\]$/\]\npriority=10/g" /etc/yum.repos.d/CentOS-SCLo-scl-rh.repo
 sed -i -e "s/\]$/\]\npriority=10/g" /etc/yum.repos.d/remi-safe.repo
 
-yum -y update
-yum -y upgrade
+yum -y update && yum -y upgrade
 
 echo "###################################################################"
 echo "                           Install Paket                           "
@@ -76,5 +65,3 @@ cd
 rm -rf /root/vien.sh
 rm -rf /var/cache/yum
 rm -rf /tmp/*
-yum clean all
-sleep 10
