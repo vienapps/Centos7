@@ -84,11 +84,8 @@ yum -y install yum-utils
 yum -y install yum-plugin-fastestmirror
 yum -y install yum-plugin-priorities
 yum -y install epel-release
-yum -y install centos-release-scl-rh centos-release-scl
 sed -i -e "s/\]$/\]\npriority=1/g" /etc/yum.repos.d/CentOS-Base.repo
 sed -i -e "s/\]$/\]\npriority=5/g" /etc/yum.repos.d/epel.repo
-sed -i -e "s/\]$/\]\npriority=10/g" /etc/yum.repos.d/CentOS-SCLo-scl.repo
-sed -i -e "s/\]$/\]\npriority=10/g" /etc/yum.repos.d/CentOS-SCLo-scl-rh.repo
 sed -i -e "s/\]$/\]\npriority=10/g" /etc/yum.repos.d/remi-safe.repo
 
 echo "###################################################################"
