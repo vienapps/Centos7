@@ -1,4 +1,9 @@
 #!/bin/bash
+
+PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
+export PATH
+LANG=en_US.UTF-8
+
 clear
 echo "###################################################################"
 echo "                     MULAI INSTALASI !!                            "
@@ -80,9 +85,6 @@ yum -y install yum-utils
 yum -y install yum-plugin-fastestmirror
 yum -y install yum-plugin-priorities
 yum -y install epel-release
-sed -i -e "s/\]$/\]\npriority=1/g" /etc/yum.repos.d/CentOS-Base.repo
-sed -i -e "s/\]$/\]\npriority=5/g" /etc/yum.repos.d/epel.repo
-sed -i -e "s/\]$/\]\npriority=10/g" /etc/yum.repos.d/remi-safe.repo
 
 echo "###################################################################"
 echo "                        Update Paket                               "
@@ -157,8 +159,8 @@ select pilih in "${php[@]}"; do
         ;;
         "PHP_8")
             Install_Php
-            yum-config-manager --enable remi-php80
-            yum -y install php php-mysql php-devel php-gd php-pecl-memcache php-xmlrpc php-xml php-mbstring php-mcrypt
+            yum -y install php80 php80-php-intl php80-php-mbstring php80-php-gd php80-php-xml php80-php-imap php80-php-zip php80-php-curl php80-php-json php80-php-ldap php80-php-mysqlnd php80-php-opcache
+            scl enable php80 bash
             systemctl restart httpd.service
             break
         ;;
