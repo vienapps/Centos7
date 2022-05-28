@@ -6,6 +6,11 @@ echo "                    Script By HARVIEN !!                           "
 echo "###################################################################"
 sleep 10
 
+if [[ "$USER" != 'root' ]]; then
+    echo "Maaf, Anda harus menjalankan ini sebagai root !!!"
+    exit
+fi
+
 Centos6Check=$(cat /etc/redhat-release | grep ' 6.' | grep -iE 'centos|Red Hat')
 if [ "${Centos6Check}" ]; then
     echo "Sorry, Centos 6 Tidak Support Dengan Script Ini !!!"
@@ -16,17 +21,6 @@ Centos8Check=$(cat /etc/redhat-release | grep ' 8.' | grep -iE 'centos|Red Hat')
 if [ "${Centos6Check}" ]; then
     echo "Sorry, Centos 8 Tidak Support Dengan Script Ini !!!"
     exit 1
-fi
-
-UbuntuCheck=$(cat /etc/issue | grep Ubuntu | awk '{print $2}' | cut -f 1 -d '.')
-if [ "${UbuntuCheck}" -lt "16" ]; then
-    echo "Sorry, OS Tidak Support Dengan Script Ini !!!"
-    exit 1
-fi
-
-if [[ "$USER" != 'root' ]]; then
-    echo "Maaf, Anda harus menjalankan ini sebagai root !!!"
-    exit
 fi
 
 cd
