@@ -96,21 +96,92 @@ echo "                        Update Paket                               "
 echo "###################################################################"
 sleep 3
 yum -y update && yum -y upgrade
+yum -y install sudo nano curl firewalld gcc git
+systemctl start firewalld
+systemctl enable firewalld
+systemctl restart firewalld
 
 echo "###################################################################"
-echo "                           Install Paket                           "
+echo "                           Install SSH                             "
 echo "###################################################################"
 sleep 3
 cd
-yum -y install sudo nano curl firewalld openssh-server openssh-clients
+yum -y install openssh-server openssh-clients
 systemctl start sshd.service
 systemctl enable sshd.service
 firewall-cmd --permanent --zone=public --add-service=ssh
 firewall-cmd --reload
 systemctl restart sshd.service
-systemctl start firewalld
-systemctl enable firewalld
-systemctl restart firewalld
+
+echo "###################################################################"
+echo "                           Install Apache                          "
+echo "###################################################################"
+sleep 3
+cd
+yum -y install httpd
+systemctl start httpd.service
+systemctl enable httpd.service
+
+echo "###################################################################"
+echo "                           Install PHP                             "
+echo "###################################################################"
+sleep 3
+cd
+echo "Pilih Versi PHP [1-4]:"
+PS3='Silahkan Pilih Nomor PHP Mana Yang Anda Install [1-4]: '
+php=("PHP_5.6" "PHP_7" "PHP_7.4" "PHP_8")
+select pilih in "${php[@]}"; do
+    case $pilih in
+        "PHP_5.6")
+            install_php
+            yum-config-manager --enable remi-php56
+            yum -y install php php-mysql php-devel php-gd php-pecl-memcache php-xmlrpc php-xml php-mbstring php-mcrypt
+            systemctl restart httpd.service
+            break
+            # optionally call a function or run some code here
+        ;;
+        "PHP_7")
+            install_php
+            yum-config-manager --enable remi-php70
+            yum -y install php php-mysql php-devel php-gd php-pecl-memcache php-xmlrpc php-xml php-mbstring php-mcrypt
+            systemctl restart httpd.service
+            break
+            # optionally call a function or run some code here
+        ;;
+        "PHP_7.4")
+            install_php
+            yum-config-manager --enable remi-php74
+            yum -y install php php-mysql php-devel php-gd php-pecl-memcache php-xmlrpc php-xml php-mbstring php-mcrypt
+            systemctl restart httpd.service
+            break
+            # optionally call a function or run some code here
+        ;;
+        "PHP_8")
+            install_php
+            yum-config-manager --enable remi-php80
+            yum -y install php php-mysql php-devel php-gd php-pecl-memcache php-xmlrpc php-xml php-mbstring php-mcrypt
+            systemctl restart httpd.service
+            break
+        ;;
+        *) echo "Pilih Dengan Benar Antara 1 s/d 4 !!!";;
+    esac
+done
+
+install_php(){
+    yum -y install epel-release yum-utils
+    yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+    yum -y install http://rpms.remirepo.net/enterprise/remi-release-7.rpm
+}
+
+cp /etc/php.ini /etc/php.ini.backup
+MYPHPINI=`find /etc -name php.ini -print`
+sed -i "s/;date.timezone =/date.timezone = Asia\/Jakarta/" "$MYPHPINI"
+sed -i "s/max_execution_time\s*=.*/max_execution_time = 600/g" "$MYPHPINI"
+sed -i "s/max_input_time\s*=.*/max_input_time = 600/g" "$MYPHPINI"
+sed -i "s/; max_input_vars\s*=.*/max_input_vars = 4000/g" "$MYPHPINI"
+sed -i "s/memory_limit\s*=.*/memory_limit = -1/g" "$MYPHPINI"
+sed -i "s/post_max_size\s*=.*/post_max_size = 1536M/g" "$MYPHPINI"
+sed -i "s/upload_max_filesize\s*=.*/upload_max_filesize = 1024M/g" "$MYPHPINI"
 
 echo "###################################################################"
 echo "                           Pembersihan                             "
