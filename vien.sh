@@ -6,11 +6,6 @@ echo "                    Script By HARVIEN !!                           "
 echo "###################################################################"
 sleep 10
 
-if [[ "$USER" != 'root' ]]; then
-    echo "Maaf, Anda harus menjalankan ini sebagai root !!!"
-    exit
-fi
-
 Centos6Check=$(cat /etc/redhat-release | grep ' 6.' | grep -iE 'centos|Red Hat')
 if [ "${Centos6Check}" ]; then
     echo "Sorry, Centos 6 Tidak Support Dengan Script Ini !!!"
@@ -21,6 +16,17 @@ Centos8Check=$(cat /etc/redhat-release | grep ' 8.' | grep -iE 'centos|Red Hat')
 if [ "${Centos6Check}" ]; then
     echo "Sorry, Centos 8 Tidak Support Dengan Script Ini !!!"
     exit 1
+fi
+
+UbuntuCheck=$(cat /etc/issue | grep Ubuntu | awk '{print $2}' | cut -f 1 -d '.')
+if [ "${UbuntuCheck}" -lt "16" ]; then
+    echo "Sorry, OS Tidak Support Dengan Script Ini !!!"
+    exit 1
+fi
+
+if [[ "$USER" != 'root' ]]; then
+    echo "Maaf, Anda harus menjalankan ini sebagai root !!!"
+    exit
 fi
 
 cd
@@ -121,7 +127,7 @@ echo "###################################################################"
 sleep 3
 cd
 
-install_php() {
+Install_Php() {
     yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
     yum -y install http://rpms.remirepo.net/enterprise/remi-release-7.rpm
 }
@@ -132,7 +138,7 @@ php=("PHP_5.6" "PHP_7" "PHP_7.4" "PHP_8")
 select pilih in "${php[@]}"; do
     case $pilih in
         "PHP_5.6")
-            install_php
+            Install_Php
             yum-config-manager --enable remi-php56
             yum -y install php php-mysql php-devel php-gd php-pecl-memcache php-xmlrpc php-xml php-mbstring php-mcrypt
             systemctl restart httpd.service
@@ -140,7 +146,7 @@ select pilih in "${php[@]}"; do
             # optionally call a function or run some code here
         ;;
         "PHP_7")
-            install_php
+            Install_Php
             yum-config-manager --enable remi-php70
             yum -y install php php-mysql php-devel php-gd php-pecl-memcache php-xmlrpc php-xml php-mbstring php-mcrypt
             systemctl restart httpd.service
@@ -148,7 +154,7 @@ select pilih in "${php[@]}"; do
             # optionally call a function or run some code here
         ;;
         "PHP_7.4")
-            install_php
+            Install_Php
             yum-config-manager --enable remi-php74
             yum -y install php php-mysql php-devel php-gd php-pecl-memcache php-xmlrpc php-xml php-mbstring php-mcrypt
             systemctl restart httpd.service
@@ -156,7 +162,7 @@ select pilih in "${php[@]}"; do
             # optionally call a function or run some code here
         ;;
         "PHP_8")
-            install_php
+            Install_Php
             yum-config-manager --enable remi-php80
             yum -y install php php-mysql php-devel php-gd php-pecl-memcache php-xmlrpc php-xml php-mbstring php-mcrypt
             systemctl restart httpd.service
