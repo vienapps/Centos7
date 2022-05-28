@@ -80,6 +80,8 @@ Set_Centos_Repo() {
         sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.epel.cloud|g' /etc/yum.repos.d/CentOS-*.repo
     fi
 }
+
+Set_Centos_Repo
 yum -y install yum-utils
 yum -y install yum-plugin-fastestmirror
 yum -y install yum-plugin-priorities
@@ -124,6 +126,12 @@ echo "                           Install PHP                             "
 echo "###################################################################"
 sleep 3
 cd
+
+install_php() {
+    yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+    yum -y install http://rpms.remirepo.net/enterprise/remi-release-7.rpm
+}
+
 echo "Pilih Versi PHP [1-4]:"
 PS3='Silahkan Pilih Nomor PHP Mana Yang Anda Install [1-4]: '
 php=("PHP_5.6" "PHP_7" "PHP_7.4" "PHP_8")
@@ -163,12 +171,6 @@ select pilih in "${php[@]}"; do
         *) echo "Pilih Dengan Benar Antara 1 s/d 4 !!!";;
     esac
 done
-
-install_php(){
-    yum -y install epel-release yum-utils
-    yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-    yum -y install http://rpms.remirepo.net/enterprise/remi-release-7.rpm
-}
 
 cp /etc/php.ini /etc/php.ini.backup
 MYPHPINI=`find /etc -name php.ini -print`
