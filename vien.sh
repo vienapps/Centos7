@@ -154,7 +154,6 @@ select pilih in "${php[@]}"; do
         "PHP_8")
             Install_Php
             yum -y install php80 php80-php-intl php80-php-mbstring php80-php-gd php80-php-xml php80-php-imap php80-php-zip php80-php-curl php80-php-json php80-php-ldap php80-php-mysqlnd php80-php-opcache
-            scl enable php80 bash
             systemctl restart httpd.service
         ;;
         *) echo "Pilih Dengan Benar Antara 1 s/d 4 !!!";;
