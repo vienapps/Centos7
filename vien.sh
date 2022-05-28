@@ -138,23 +138,27 @@ select pilih in "${php[@]}"; do
             yum-config-manager --enable remi-php56
             yum -y install php php-mysql php-devel php-gd php-pecl-memcache php-xmlrpc php-xml php-mbstring php-mcrypt
             systemctl restart httpd.service
+            break
         ;;
         "PHP_7")
             Install_Php
             yum-config-manager --enable remi-php70
             yum -y install php php-mysql php-devel php-gd php-pecl-memcache php-xmlrpc php-xml php-mbstring php-mcrypt
             systemctl restart httpd.service
+            break
         ;;
         "PHP_7.4")
             Install_Php
             yum-config-manager --enable remi-php74
             yum -y install php php-mysql php-devel php-gd php-pecl-memcache php-xmlrpc php-xml php-mbstring php-mcrypt
             systemctl restart httpd.service
+            break
         ;;
         "PHP_8")
             Install_Php
             yum -y install php80 php80-php-intl php80-php-mbstring php80-php-gd php80-php-xml php80-php-imap php80-php-zip php80-php-curl php80-php-json php80-php-ldap php80-php-mysqlnd php80-php-opcache
             systemctl restart httpd.service
+            break
         ;;
         *) echo "Pilih Dengan Benar Antara 1 s/d 4 !!!";;
     esac
