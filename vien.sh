@@ -6,9 +6,27 @@ echo "                    Script By HARVIEN !!                           "
 echo "###################################################################"
 sleep 10
 
+Centos6Check=$(cat /etc/redhat-release | grep ' 6.' | grep -iE 'centos|Red Hat')
+if [ "${Centos6Check}" ]; then
+    echo "Sorry, Centos 6 Tidak Support Dengan Script Ini !!!"
+    exit 1
+fi
+
+Centos8Check=$(cat /etc/redhat-release | grep ' 8.' | grep -iE 'centos|Red Hat')
+if [ "${Centos6Check}" ]; then
+    echo "Sorry, Centos 8 Tidak Support Dengan Script Ini !!!"
+    exit 1
+fi
+
+UbuntuCheck=$(cat /etc/issue | grep Ubuntu | awk '{print $2}' | cut -f 1 -d '.')
+if [ "${UbuntuCheck}" -lt "16" ]; then
+    echo "Sorry, OS Tidak Support Dengan Script Ini !!!"
+    exit 1
+fi
+
 if [[ "$USER" != 'root' ]]; then
-	echo "Maaf, Anda harus menjalankan ini sebagai root !!!"
-	exit
+    echo "Maaf, Anda harus menjalankan ini sebagai root !!!"
+    exit
 fi
 
 cd
@@ -36,7 +54,32 @@ echo "###################################################################"
 echo "                      Install Repository                           "
 echo "###################################################################"
 sleep 3
+
 cd
+Set_Centos_Repo() {
+    HUAWEI_CHECK=$(cat /etc/motd | grep "Huawei Cloud")
+    if [ "${HUAWEI_CHECK}" ] && [ "${is64bit}" == "64" ]; then
+        \cp -rpa /etc/yum.repos.d/ /etc/yumBak
+        sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*.repo
+        sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.epel.cloud|g' /etc/yum.repos.d/CentOS-*.repo
+        rm -f /etc/yum.repos.d/epel.repo
+        rm -f /etc/yum.repos.d/epel-*
+    fi
+    ALIYUN_CHECK=$(cat /etc/motd | grep "Alibaba Cloud ")
+    if [ "${ALIYUN_CHECK}" ] && [ "${is64bit}" == "64" ] && [ ! -f "/etc/yum.repos.d/Centos-vault-8.5.2111.repo" ]; then
+        rename '.repo' '.repo.bak' /etc/yum.repos.d/*.repo
+        wget https://mirrors.aliyun.com/repo/Centos-vault-8.5.2111.repo -O /etc/yum.repos.d/Centos-vault-8.5.2111.repo
+        wget https://mirrors.aliyun.com/repo/epel-archive-8.repo -O /etc/yum.repos.d/epel-archive-8.repo
+        sed -i 's/mirrors.cloud.aliyuncs.com/url_tmp/g' /etc/yum.repos.d/Centos-vault-8.5.2111.repo && sed -i 's/mirrors.aliyun.com/mirrors.cloud.aliyuncs.com/g' /etc/yum.repos.d/Centos-vault-8.5.2111.repo && sed -i 's/url_tmp/mirrors.aliyun.com/g' /etc/yum.repos.d/Centos-vault-8.5.2111.repo
+        sed -i 's/mirrors.aliyun.com/mirrors.cloud.aliyuncs.com/g' /etc/yum.repos.d/epel-archive-8.repo
+    fi
+    MIRROR_CHECK=$(cat /etc/yum.repos.d/CentOS-Linux-AppStream.repo | grep "[^#]mirror.centos.org")
+    if [ "${MIRROR_CHECK}" ] && [ "${is64bit}" == "64" ]; then
+        \cp -rpa /etc/yum.repos.d/ /etc/yumBak
+        sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*.repo
+        sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.epel.cloud|g' /etc/yum.repos.d/CentOS-*.repo
+    fi
+}
 yum -y install yum-utils
 yum -y install yum-plugin-fastestmirror
 yum -y install yum-plugin-priorities
