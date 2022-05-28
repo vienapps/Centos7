@@ -9,7 +9,7 @@ echo "###################################################################"
 echo "                     MULAI INSTALASI !!                            "
 echo "                    Script By HARVIEN !!                           "
 echo "###################################################################"
-sleep 10
+sleep 3
 
 if [[ "$USER" != 'root' ]]; then
     echo "Maaf, Anda harus menjalankan ini sebagai root !!!"
@@ -81,17 +81,16 @@ Set_Centos_Repo() {
 }
 
 Set_Centos_Repo
-yum -y install yum-utils
-yum -y install yum-plugin-fastestmirror
-yum -y install yum-plugin-priorities
-yum -y install epel-release
+yum -y install yum-utils yum-plugin-fastestmirror yum-plugin-priorities
+yum -y install https://raw.githubusercontent.com/vienapp/Centos7/master/epel-release-7-14.noarch.rpm
+yum -y install https://raw.githubusercontent.com/vienapp/Centos7/master/remi-release-7.9.rpm
 
 echo "###################################################################"
 echo "                        Update Paket                               "
 echo "###################################################################"
 sleep 3
 yum -y update && yum -y upgrade
-yum -y install sudo nano curl firewalld gcc git
+yum -y install sudo nano curl firewalld gcc git openssh-server openssh-clients httpd
 systemctl start firewalld
 systemctl enable firewalld
 systemctl restart firewalld
@@ -101,7 +100,6 @@ echo "                           Install SSH                             "
 echo "###################################################################"
 sleep 3
 cd
-yum -y install openssh-server openssh-clients
 systemctl start sshd.service
 systemctl enable sshd.service
 firewall-cmd --permanent --zone=public --add-service=ssh
@@ -113,20 +111,14 @@ echo "                           Install Apache                          "
 echo "###################################################################"
 sleep 3
 cd
-yum -y install httpd
 systemctl start httpd.service
 systemctl enable httpd.service
 
 echo "###################################################################"
 echo "                           Install PHP                             "
 echo "###################################################################"
-sleep 3
+sleep 2
 cd
-
-Install_Php() {
-    yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-    yum -y install http://rpms.remirepo.net/enterprise/remi-release-7.rpm
-}
 
 echo "Pilih Versi PHP [1-4]:"
 PS3='Silahkan Pilih Nomor PHP Mana Yang Anda Install [1-4]: '
@@ -134,31 +126,25 @@ php=("PHP_5.6" "PHP_7" "PHP_7.4" "PHP_8")
 select pilih in "${php[@]}"; do
     case $pilih in
         "PHP_5.6")
-            Install_Php
             yum-config-manager --enable remi-php56
-            yum -y install php php-mysql php-devel php-gd php-pecl-memcache php-xmlrpc php-xml php-mbstring php-mcrypt
+            yum -y install php php-{cli,fpm,mysqlnd,zip,devel,gd,mbstring,curl,xml,pear,bcmath,json}
             systemctl restart httpd.service
-            break
         ;;
         "PHP_7")
-            Install_Php
             yum-config-manager --enable remi-php70
-            yum -y install php php-mysql php-devel php-gd php-pecl-memcache php-xmlrpc php-xml php-mbstring php-mcrypt
+            yum -y install php php-{cli,fpm,mysqlnd,zip,devel,gd,mbstring,curl,xml,pear,bcmath,json}
             systemctl restart httpd.service
-            break
         ;;
         "PHP_7.4")
-            Install_Php
             yum-config-manager --enable remi-php74
-            yum -y install php php-mysql php-devel php-gd php-pecl-memcache php-xmlrpc php-xml php-mbstring php-mcrypt
+            yum -y install php php-{cli,fpm,mysqlnd,zip,devel,gd,mbstring,curl,xml,pear,bcmath,json}
             systemctl restart httpd.service
-            break
         ;;
         "PHP_8")
-            Install_Php
-            yum -y install php80 php80-php-intl php80-php-mbstring php80-php-gd php80-php-xml php80-php-imap php80-php-zip php80-php-curl php80-php-json php80-php-ldap php80-php-mysqlnd php80-php-opcache
+            yum-config-manager --disable 'remi-php*'
+            yum-config-manager --enable remi-php80
+            yum -y install php php-{cli,fpm,mysqlnd,zip,devel,gd,mbstring,curl,xml,pear,bcmath,json}
             systemctl restart httpd.service
-            break
         ;;
         *) echo "Pilih Dengan Benar Antara 1 s/d 4 !!!";;
     esac
