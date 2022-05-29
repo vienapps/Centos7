@@ -25,7 +25,7 @@ set_install() {
     echo "###################################################################"
     sleep 3
     yum -y update
-    yum -y install sudo nano curl firewalld gcc git openssh-server openssh-clients httpd yum-utils
+    yum -y install sudo nano curl firewalld gcc git openssh-server openssh-clients httpd yum-utils yum-plugin-fastestmirror
     systemctl start firewalld
     systemctl enable firewalld
     systemctl restart firewalld
