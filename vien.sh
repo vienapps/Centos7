@@ -75,54 +75,12 @@ Set_Centos_Repo() {
         sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*.repo
         sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.epel.cloud|g' /etc/yum.repos.d/CentOS-*.repo
     fi
+    yum -y install yum-utils
+    yum -y install yum-plugin-fastestmirror
+    yum -y install yum-plugin-priorities
+    yum -y install https://raw.githubusercontent.com/vienapp/Centos7/master/epel-release-latest-7.noarch.rpm
+    yum -y install https://raw.githubusercontent.com/vienapp/Centos7/master/remi-release-7.rpm
 }
-
-Set_Centos_Repo
-yum -y install yum-utils
-yum -y install yum-plugin-fastestmirror
-yum -y install yum-plugin-priorities
-yum -y install https://raw.githubusercontent.com/vienapp/Centos7/master/epel-release-latest-7.noarch.rpm
-yum -y install https://raw.githubusercontent.com/vienapp/Centos7/master/remi-release-7.rpm
-
-echo "###################################################################"
-echo "                        Update Paket                               "
-echo "###################################################################"
-sleep 3
-yum -y update && yum -y upgrade
-yum -y install sudo nano curl firewalld gcc git openssh-server openssh-clients httpd
-systemctl start firewalld
-systemctl enable firewalld
-systemctl restart firewalld
-
-echo "###################################################################"
-echo "                           Install SSH                             "
-echo "###################################################################"
-sleep 3
-cd
-systemctl start sshd.service
-systemctl enable sshd.service
-firewall-cmd --permanent --zone=public --add-service=ssh
-firewall-cmd --reload
-systemctl restart sshd.service
-
-echo "###################################################################"
-echo "                         Install Kebutuhan                         "
-echo "###################################################################"
-echo "Apakah Anda Ingin Install Apache & PHP ? (y|n): "
-read pilihan
-
-case $pilihan in
-    y | Y)
-        Install_PHP
-        Akhir
-    ;;
-    n | N)
-        Akhir
-    ;;
-    *)
-        echo "Perintah Salah !!!"
-    ;;
-esac
 
 Install_PHP() {
     echo "###################################################################"
@@ -204,3 +162,45 @@ Akhir() {
     echo "                    Script By HARVIEN !!                           "
     echo "###################################################################"
 }
+
+Set_Centos_Repo
+
+echo "###################################################################"
+echo "                        Update Paket                               "
+echo "###################################################################"
+sleep 3
+yum -y update && yum -y upgrade
+yum -y install sudo nano curl firewalld gcc git openssh-server openssh-clients httpd
+systemctl start firewalld
+systemctl enable firewalld
+systemctl restart firewalld
+
+echo "###################################################################"
+echo "                           Install SSH                             "
+echo "###################################################################"
+sleep 3
+cd
+systemctl start sshd.service
+systemctl enable sshd.service
+firewall-cmd --permanent --zone=public --add-service=ssh
+firewall-cmd --reload
+systemctl restart sshd.service
+
+echo "###################################################################"
+echo "                         Install Kebutuhan                         "
+echo "###################################################################"
+echo "Apakah Anda Ingin Install Apache & PHP ? (y|n): "
+read pilihan
+
+case $pilihan in
+    y | Y)
+        Install_PHP
+        Akhir
+    ;;
+    n | N)
+        Akhir
+    ;;
+    *)
+        echo "Perintah Salah !!!"
+    ;;
+esac
