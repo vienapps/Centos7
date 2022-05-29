@@ -75,95 +75,14 @@ Set_Centos_Repo() {
         sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*.repo
         sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.epel.cloud|g' /etc/yum.repos.d/CentOS-*.repo
     fi
-    yum -y install yum-utils
-    yum -y install yum-plugin-fastestmirror
-    yum -y install yum-plugin-priorities
-    yum -y install https://raw.githubusercontent.com/vienapp/Centos7/master/epel-release-latest-7.noarch.rpm
-    yum -y install https://raw.githubusercontent.com/vienapp/Centos7/master/remi-release-7.rpm
-}
-
-Install_PHP() {
-    echo "###################################################################"
-    echo "                    Install Apache & PHP                           "
-    echo "###################################################################"
-    sleep 2
-    cd
-    
-    yum -y install httpd
-    systemctl start httpd.service
-    systemctl enable httpd.service
-    systemctl restart httpd.service
-    
-    echo "Pilih Versi PHP [1-4]:"
-    PS3='Silahkan Pilih Nomor PHP Mana Yang Anda Install [1-4]: '
-    php=("PHP_5.6" "PHP_7" "PHP_7.4" "PHP_8")
-    select pilih in "${php[@]}"; do
-        case $pilih in
-            "PHP_5.6")
-                yum -y remove php*
-                yum-config-manager --disable 'remi-php*'
-                yum-config-manager --enable remi-php56
-                yum -y install php php-{cli,fpm,mysqlnd,zip,devel,gd,mbstring,curl,xml,pear,bcmath,json}
-                systemctl restart httpd.service
-                break
-            ;;
-            "PHP_7")
-                yum -y remove php*
-                yum-config-manager --disable 'remi-php*'
-                yum-config-manager --enable remi-php70
-                yum -y install php php-{cli,fpm,mysqlnd,zip,devel,gd,mbstring,curl,xml,pear,bcmath,json}
-                systemctl restart httpd.service
-                break
-            ;;
-            "PHP_7.4")
-                yum -y remove php*
-                yum-config-manager --disable 'remi-php*'
-                yum-config-manager --enable remi-php74
-                yum -y install php php-{cli,fpm,mysqlnd,zip,devel,gd,mbstring,curl,xml,pear,bcmath,json}
-                systemctl restart httpd.service
-                break
-            ;;
-            "PHP_8")
-                yum -y remove php*
-                yum-config-manager --disable 'remi-php*'
-                yum-config-manager --enable remi-php80
-                yum -y install php php-{cli,fpm,mysqlnd,zip,devel,gd,mbstring,curl,xml,pear,bcmath,json}
-                systemctl restart httpd.service
-                break
-            ;;
-            *) echo "Pilih Dengan Benar Antara 1 s/d 4 !!!";;
-        esac
-    done
-    
-    cp /etc/php.ini /etc/php.ini.backup
-    MYPHPINI=`find /etc -name php.ini -print`
-    sed -i "s/;date.timezone =/date.timezone = Asia\/Jakarta/" "$MYPHPINI"
-    sed -i "s/max_execution_time\s*=.*/max_execution_time = 600/g" "$MYPHPINI"
-    sed -i "s/max_input_time\s*=.*/max_input_time = 600/g" "$MYPHPINI"
-    sed -i "s/; max_input_vars\s*=.*/max_input_vars = 4000/g" "$MYPHPINI"
-    sed -i "s/memory_limit\s*=.*/memory_limit = -1/g" "$MYPHPINI"
-    sed -i "s/post_max_size\s*=.*/post_max_size = 1536M/g" "$MYPHPINI"
-    sed -i "s/upload_max_filesize\s*=.*/upload_max_filesize = 1024M/g" "$MYPHPINI"
-    systemctl restart httpd.service
-}
-
-Akhir() {
-    echo "###################################################################"
-    echo "                           Pembersihan                             "
-    echo "###################################################################"
-    sleep 7
-    cd
-    rm -rf /root/vien.sh
-    rm -rf /var/cache/yum
-    rm -rf /tmp/*
-    clear
-    echo "###################################################################"
-    echo "                    INSTALASI SELESAI !!                           "
-    echo "                    Script By HARVIEN !!                           "
-    echo "###################################################################"
 }
 
 Set_Centos_Repo
+yum -y install yum-utils
+yum -y install yum-plugin-fastestmirror
+yum -y install yum-plugin-priorities
+yum -y install https://raw.githubusercontent.com/vienapp/Centos7/master/epel-release-latest-7.noarch.rpm
+yum -y install https://raw.githubusercontent.com/vienapp/Centos7/master/remi-release-7.rpm
 
 echo "###################################################################"
 echo "                        Update Paket                               "
@@ -187,20 +106,78 @@ firewall-cmd --reload
 systemctl restart sshd.service
 
 echo "###################################################################"
-echo "                         Install Kebutuhan                         "
+echo "                    Install Apache & PHP                           "
 echo "###################################################################"
-echo "Apakah Anda Ingin Install Apache & PHP ? (y|n): "
-read pilihan
+sleep 2
 
-case $pilihan in
-    y | Y)
-        Install_PHP
-        Akhir
-    ;;
-    n | N)
-        Akhir
-    ;;
-    *)
-        echo "Perintah Salah !!!"
-    ;;
-esac
+cd
+yum -y install httpd
+systemctl start httpd.service
+systemctl enable httpd.service
+systemctl restart httpd.service
+
+echo "Pilih Versi PHP [1-4]:"
+PS3='Silahkan Pilih Nomor PHP Mana Yang Anda Install [1-4]: '
+php=("PHP_5.6" "PHP_7" "PHP_7.4" "PHP_8")
+select pilih in "${php[@]}"; do
+    case $pilih in
+        "PHP_5.6")
+            yum -y remove php*
+            yum-config-manager --disable 'remi-php*'
+            yum-config-manager --enable remi-php56
+            yum -y install php php-{cli,fpm,mysqlnd,zip,devel,gd,mbstring,curl,xml,pear,bcmath,json}
+            systemctl restart httpd.service
+            break
+        ;;
+        "PHP_7")
+            yum -y remove php*
+            yum-config-manager --disable 'remi-php*'
+            yum-config-manager --enable remi-php70
+            yum -y install php php-{cli,fpm,mysqlnd,zip,devel,gd,mbstring,curl,xml,pear,bcmath,json}
+            systemctl restart httpd.service
+            break
+        ;;
+        "PHP_7.4")
+            yum -y remove php*
+            yum-config-manager --disable 'remi-php*'
+            yum-config-manager --enable remi-php74
+            yum -y install php php-{cli,fpm,mysqlnd,zip,devel,gd,mbstring,curl,xml,pear,bcmath,json}
+            systemctl restart httpd.service
+            break
+        ;;
+        "PHP_8")
+            yum -y remove php*
+            yum-config-manager --disable 'remi-php*'
+            yum-config-manager --enable remi-php80
+            yum -y install php php-{cli,fpm,mysqlnd,zip,devel,gd,mbstring,curl,xml,pear,bcmath,json}
+            systemctl restart httpd.service
+            break
+        ;;
+        *) echo "Pilih Dengan Benar Antara 1 s/d 4 !!!";;
+    esac
+done
+
+cp /etc/php.ini /etc/php.ini.backup
+MYPHPINI=`find /etc -name php.ini -print`
+sed -i "s/;date.timezone =/date.timezone = Asia\/Jakarta/" "$MYPHPINI"
+sed -i "s/max_execution_time\s*=.*/max_execution_time = 600/g" "$MYPHPINI"
+sed -i "s/max_input_time\s*=.*/max_input_time = 600/g" "$MYPHPINI"
+sed -i "s/; max_input_vars\s*=.*/max_input_vars = 4000/g" "$MYPHPINI"
+sed -i "s/memory_limit\s*=.*/memory_limit = -1/g" "$MYPHPINI"
+sed -i "s/post_max_size\s*=.*/post_max_size = 1536M/g" "$MYPHPINI"
+sed -i "s/upload_max_filesize\s*=.*/upload_max_filesize = 1024M/g" "$MYPHPINI"
+systemctl restart httpd.service
+
+echo "###################################################################"
+echo "                           Pembersihan                             "
+echo "###################################################################"
+sleep 5
+cd
+rm -rf /root/vien.sh
+rm -rf /var/cache/yum
+rm -rf /tmp/*
+clear
+echo "###################################################################"
+echo "                    INSTALASI SELESAI !!                           "
+echo "                    Script By HARVIEN !!                           "
+echo "###################################################################"
