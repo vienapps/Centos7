@@ -81,7 +81,9 @@ Set_Centos_Repo() {
 }
 
 Set_Centos_Repo
-yum -y install yum-utils yum-plugin-fastestmirror yum-plugin-priorities
+yum -y install yum-utils
+yum -y install yum-plugin-fastestmirror
+yum -y install yum-plugin-priorities
 yum -y install https://raw.githubusercontent.com/vienapp/Centos7/master/epel-release-7-14.noarch.rpm
 yum -y install https://raw.githubusercontent.com/vienapp/Centos7/master/remi-release-7.9.rpm
 
@@ -126,25 +128,33 @@ php=("PHP_5.6" "PHP_7" "PHP_7.4" "PHP_8")
 select pilih in "${php[@]}"; do
     case $pilih in
         "PHP_5.6")
+            yum -y remove php*
             yum-config-manager --enable remi-php56
             yum -y install php php-{cli,fpm,mysqlnd,zip,devel,gd,mbstring,curl,xml,pear,bcmath,json}
             systemctl restart httpd.service
+            break
         ;;
         "PHP_7")
+            yum -y remove php*
             yum-config-manager --enable remi-php70
             yum -y install php php-{cli,fpm,mysqlnd,zip,devel,gd,mbstring,curl,xml,pear,bcmath,json}
             systemctl restart httpd.service
+            break
         ;;
         "PHP_7.4")
+            yum -y remove php*
             yum-config-manager --enable remi-php74
             yum -y install php php-{cli,fpm,mysqlnd,zip,devel,gd,mbstring,curl,xml,pear,bcmath,json}
             systemctl restart httpd.service
+            break
         ;;
         "PHP_8")
+            yum -y remove php*
             yum-config-manager --disable 'remi-php*'
             yum-config-manager --enable remi-php80
             yum -y install php php-{cli,fpm,mysqlnd,zip,devel,gd,mbstring,curl,xml,pear,bcmath,json}
             systemctl restart httpd.service
+            break
         ;;
         *) echo "Pilih Dengan Benar Antara 1 s/d 4 !!!";;
     esac
