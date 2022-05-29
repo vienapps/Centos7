@@ -219,7 +219,7 @@ install_lamp(){
     pre_installation_settings
     install_apache
     cd
-    rm -rf /root/vien.sh
+    rm -rf /root/vienapp.sh
     clear
     echo
     echo 'Congratulations !!!'
