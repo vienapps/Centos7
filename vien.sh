@@ -116,11 +116,9 @@ case $pilihan in
         Install_PHP
         Akhir
     ;;
-    
     n | N)
         Akhir
     ;;
-    
     *)
         echo "Perintah Salah !!!"
     ;;
