@@ -13,8 +13,6 @@ rootness(){
 }
 
 Set_Centos_Repo() {
-    mkdir /etc/yum.repos.d/backup
-    mv -v /etc/yum.repos.d/*  /etc/yum.repos.d/backup/
     yum -y install https://raw.githubusercontent.com/vienapp/Centos7/master/epel-release-latest-7.noarch.rpm
     yum -y install https://raw.githubusercontent.com/vienapp/Centos7/master/remi-release-7.rpm
 }
