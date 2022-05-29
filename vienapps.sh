@@ -4,12 +4,16 @@ PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 LANG=en_US.UTF-8
 
-clear
-echo "###################################################################"
-echo "                     MULAI INSTALASI !!                            "
-echo "                    Script By HARVIEN !!                           "
-echo "###################################################################"
-sleep 3
+Red_Error() {
+    echo '================================================='
+    printf '\033[1;31;40m%b\033[0m\n' "$@"
+    exit 1
+}
+
+is64bit=$(getconf LONG_BIT)
+if [ "${is64bit}" != '64' ]; then
+    Red_Error "Sorry, Script Ini Tidak Support 32Bit !"
+fi
 
 # Make sure only root can run our script
 rootness(){
@@ -45,6 +49,12 @@ Set_Centos_Repo() {
 }
 
 set_install() {
+    clear
+    echo "###################################################################"
+    echo "                     MULAI INSTALASI !!                            "
+    echo "                    Script By HARVIEN !!                           "
+    echo "###################################################################"
+    sleep 3
     yum -y update
     yum -y upgrade
     yum -y install sudo nano curl firewalld gcc git openssh-server openssh-clients httpd
