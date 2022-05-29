@@ -15,8 +15,12 @@ rootness(){
 Set_Centos_Repo() {
     clear
     echo "###################################################################"
-    echo "#                      Install Repository                         #"
+    echo "#                     MULAI INSTALASI !!                          #"
+    echo "#                    Script By HARVIEN !!                         #"
     echo "###################################################################"
+    echo "#                     Install Repository                          #"
+    echo "###################################################################"
+    sleep 3
     yum -y install yum-plugin-fastestmirror
     yum -y install yum-plugin-priorities
     yum -y install https://raw.githubusercontent.com/vienapp/Centos7/master/epel-release-latest-7.noarch.rpm
@@ -26,8 +30,7 @@ Set_Centos_Repo() {
 set_install() {
     clear
     echo "###################################################################"
-    echo "#                     MULAI INSTALASI !!                          #"
-    echo "#                    Script By HARVIEN !!                         #"
+    echo "#                       Update Packages                           #"
     echo "###################################################################"
     sleep 3
     yum -y update
@@ -38,6 +41,7 @@ set_install() {
     echo "###################################################################"
     echo "#                      Install NTP LOKAL                          #"
     echo "###################################################################"
+    sleep 3
     cd
     yum -y install ntp
     wget -O /etc/ntp.conf "https://raw.githubusercontent.com/vienapp/Centos7/master/ntp.conf"
@@ -56,10 +60,11 @@ pre_installation_settings(){
 
 # Install Apache
 install_apache(){
+    clear
     echo "###################################################################"
     echo "#                    Install Apache & PHP                         #"
     echo "###################################################################"
-    sleep 2
+    sleep 3
     
     cd
     yum -y install httpd
@@ -113,15 +118,18 @@ install_apache(){
 
 # Install MySQL
 install_mysql() {
+    clear
     echo "###################################################################"
     echo "#                        Install MySQL                            #"
     echo "###################################################################"
-    sleep 2
+    sleep 3
     
     cd
     systemctl stop mariadb
     yum -y remove mariadb*
     yum -y install mariadb mariadb-server
+    systemctl start mariadb
+    systemctl enable mariadb
     echo "Masukkan Password MySql Anda !"
     read -p "(Password MySql Dengan User root):" dbrootpwd
     if [ -z $dbrootpwd ]; then
@@ -134,6 +142,7 @@ install_mysql() {
     echo
     
     yum -y install expect
+    echo "---------------------------------------------------------------------"
     echo "Silahkan Tunggu Sebentar, Sedang Konfigurasi MySQL..."
     MARIADB_ROOT_PASS=$dbrootpwd
     SECURE_MYSQL=$(expect -c "
@@ -178,6 +187,7 @@ EOF
 
 # services
 services() {
+    clear
     echo "###################################################################"
     echo "#                          Services                               #"
     echo "###################################################################"
@@ -208,7 +218,7 @@ services() {
 
 # Finish
 Finish() {
-    PHP='php'
+    clear
     echo "####################################################################"
     echo "# Instalasi Telah Selesai !                                        #"
     echo "#==================================================================#"
@@ -295,11 +305,8 @@ install_lamp(){
     install_mysql
     services
     cd
-    rm -rf /root/vienapp.sh
-    clear
-    echo
-    echo 'Congratulations !!!'
-    echo
+    rm -rf /root/vien.sh
+    Finish
 }
 
 # Initialization step
