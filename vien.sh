@@ -127,23 +127,27 @@ install_mysql() {
     cd
     systemctl stop mariadb
     yum -y remove mariadb*
+    rm -f /etc/my.cnf.rpmsave
     yum -y install mariadb mariadb-server
     systemctl start mariadb
     systemctl enable mariadb
+    echo "---------------------------------------------------------------------"
     echo "Masukkan Password MySql Anda !"
+    echo "---------------------------------------------------------------------"
     read -p "(Password MySql Dengan User root):" dbrootpwd
     if [ -z $dbrootpwd ]; then
         dbrootpwd="root"
     fi
     echo
-    echo "---------------------------"
+    echo "---------------------------------------------------------------------"
     echo "Password = $dbrootpwd"
-    echo "---------------------------"
+    echo "---------------------------------------------------------------------"
     echo
     
     yum -y install expect
     echo "---------------------------------------------------------------------"
     echo "Silahkan Tunggu Sebentar, Sedang Konfigurasi MySQL..."
+    echo "---------------------------------------------------------------------"
     MARIADB_ROOT_PASS=$dbrootpwd
     SECURE_MYSQL=$(expect -c "
 	set timeout 3
@@ -169,20 +173,19 @@ install_mysql() {
     echo "${SECURE_MYSQL}"
     yum -y remove expect
     
-/usr/bin/mysql -uroot -p${MARIADB_ROOT_PASS} <<EOF
-GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY '${MARIADB_ROOT_PASS}' WITH GRANT OPTION;
-FLUSH PRIVILEGES;
-exit
-EOF
-    
     cp /etc/my.cnf /etc/my.cnf.backup
     MYCNF=`sudo find /etc -name my.cnf -print`
     INSERT1="default_time_zone='+07:00'"
     INSERT2='big-tables'
     INSERT3='max_allowed_packet = 1G'
     INSERT4='innodb_file_per_table = 1'
-    INSERT5='bind-address=127.0.0.1'
     sed -i "/\[mysqld\]/a$INSERT1\n$INSERT2\n$INSERT3\n$INSERT4\n$INSERT5" "$MYCNF"
+    
+/usr/bin/mysql -uroot -p${MARIADB_ROOT_PASS} <<EOF
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY '${MARIADB_ROOT_PASS}' WITH GRANT OPTION;
+FLUSH PRIVILEGES;
+exit
+EOF
 }
 
 # services
@@ -235,6 +238,7 @@ Finish() {
     echo "# Instagram : https://www.instagram.com/harvien_saputro/           #"
     echo "# Facebook : https://www.facebook.com/harvieno/                    #"
     echo "# Github : https://github.com/vienapp                              #"
+    echo "# Website : https://vien.my.id/                                    #"
     echo "####################################################################"
     sleep 2
 }
