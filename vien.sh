@@ -30,9 +30,6 @@ fi
 
 cd
 rm -rf /root/vien.sh
-rm -rf /var/cache/yum
-rm -rf /tmp/*
-yum clean all
 
 wget -O /etc/environment "https://raw.githubusercontent.com/vienapp/Centos7/master/environment"
 sleep 3
@@ -117,9 +114,11 @@ read pilihan
 case $pilihan in
     y | Y)
         Install_PHP
+        Akhir
     ;;
     
     n | N)
+        Akhir
     ;;
     
     *)
