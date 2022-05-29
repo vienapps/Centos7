@@ -4,17 +4,6 @@ PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 LANG=en_US.UTF-8
 
-Red_Error() {
-    echo '================================================='
-    printf '\033[1;31;40m%b\033[0m\n' "$@"
-    exit 1
-}
-
-is64bit=$(getconf LONG_BIT)
-if [ "${is64bit}" != '64' ]; then
-    Red_Error "Sorry, Script Ini Tidak Support 32Bit !"
-fi
-
 # Make sure only root can run our script
 rootness(){
     if [[ $EUID -ne 0 ]]; then
@@ -26,28 +15,6 @@ rootness(){
 Set_Centos_Repo() {
     yum -y install https://raw.githubusercontent.com/vienapp/Centos7/master/epel-release-latest-7.noarch.rpm
     yum -y install https://raw.githubusercontent.com/vienapp/Centos7/master/remi-release-7.rpm
-    HUAWEI_CHECK=$(cat /etc/motd | grep "Huawei Cloud")
-    if [ "${HUAWEI_CHECK}" ] && [ "${is64bit}" == "64" ]; then
-        \cp -rpa /etc/yum.repos.d/ /etc/yumBak
-        sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*.repo
-        sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.epel.cloud|g' /etc/yum.repos.d/CentOS-*.repo
-        rm -f /etc/yum.repos.d/epel.repo
-        rm -f /etc/yum.repos.d/epel-*
-    fi
-    ALIYUN_CHECK=$(cat /etc/motd | grep "Alibaba Cloud ")
-    if [ "${ALIYUN_CHECK}" ] && [ "${is64bit}" == "64" ] && [ ! -f "/etc/yum.repos.d/Centos-vault-8.5.2111.repo" ]; then
-        rename '.repo' '.repo.bak' /etc/yum.repos.d/*.repo
-        wget https://mirrors.aliyun.com/repo/Centos-vault-8.5.2111.repo -O /etc/yum.repos.d/Centos-vault-8.5.2111.repo
-        wget https://mirrors.aliyun.com/repo/epel-archive-8.repo -O /etc/yum.repos.d/epel-archive-8.repo
-        sed -i 's/mirrors.cloud.aliyuncs.com/url_tmp/g' /etc/yum.repos.d/Centos-vault-8.5.2111.repo && sed -i 's/mirrors.aliyun.com/mirrors.cloud.aliyuncs.com/g' /etc/yum.repos.d/Centos-vault-8.5.2111.repo && sed -i 's/url_tmp/mirrors.aliyun.com/g' /etc/yum.repos.d/Centos-vault-8.5.2111.repo
-        sed -i 's/mirrors.aliyun.com/mirrors.cloud.aliyuncs.com/g' /etc/yum.repos.d/epel-archive-8.repo
-    fi
-    MIRROR_CHECK=$(cat /etc/yum.repos.d/CentOS-Linux-AppStream.repo | grep "[^#]mirror.centos.org")
-    if [ "${MIRROR_CHECK}" ] && [ "${is64bit}" == "64" ]; then
-        \cp -rpa /etc/yum.repos.d/ /etc/yumBak
-        sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*.repo
-        sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.epel.cloud|g' /etc/yum.repos.d/CentOS-*.repo
-    fi
 }
 
 set_install() {
@@ -58,8 +25,7 @@ set_install() {
     echo "###################################################################"
     sleep 3
     yum -y update
-    yum -y upgrade
-    yum -y install sudo nano curl firewalld gcc git openssh-server openssh-clients httpd
+    yum -y install sudo nano curl firewalld gcc git openssh-server openssh-clients httpd yum-utils
     systemctl start firewalld
     systemctl enable firewalld
     systemctl restart firewalld
