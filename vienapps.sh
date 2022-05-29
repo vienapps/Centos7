@@ -11,9 +11,6 @@ echo "                    Script By HARVIEN !!                           "
 echo "###################################################################"
 sleep 3
 
-# Current folder
-cur_dir=`pwd`
-
 # Make sure only root can run our script
 rootness(){
     if [[ $EUID -ne 0 ]]; then
@@ -48,6 +45,18 @@ Set_Centos_Repo() {
 }
 
 set_install() {
+    yum -y update
+    yum -y upgrade
+    yum -y install sudo nano curl firewalld gcc git openssh-server openssh-clients httpd
+    systemctl start firewalld
+    systemctl enable firewalld
+    systemctl restart firewalld
+    systemctl start sshd.service
+    systemctl enable sshd.service
+    firewall-cmd --permanent --zone=public --add-service=ssh
+    firewall-cmd --reload
+    systemctl restart sshd.service
+    
     wget -O /etc/environment "https://raw.githubusercontent.com/vienapp/Centos7/master/environment"
     
     echo "###################################################################"
@@ -134,39 +143,6 @@ install_apache(){
     systemctl restart httpd.service
 }
 
-# Install phpmyadmin.
-install_phpmyadmin(){
-    if [ ! -d /data/www/default/phpmyadmin ];then
-        echo "Start Installing phpMyAdmin..."
-        LATEST_PMA=$(wget --no-check-certificate -qO- https://www.phpmyadmin.net/files/ | awk -F\> '/\/files\//{print $3}' | cut -d'<' -f1 | sort -V | tail -1)
-        if [[ -z $LATEST_PMA ]]; then
-            LATEST_PMA=$(wget -qO- http://dl.lamp.sh/pmalist.txt | tail -1 | awk -F- '{print $2}')
-        fi
-        echo -e "Installing phpmyadmin version: \033[41;37m $LATEST_PMA \033[0m"
-        cd $cur_dir
-        if [ -s phpMyAdmin-${LATEST_PMA}-all-languages.tar.gz ]; then
-            echo "phpMyAdmin-${LATEST_PMA}-all-languages.tar.gz [found]"
-        else
-            wget -c http://files.phpmyadmin.net/phpMyAdmin/${LATEST_PMA}/phpMyAdmin-${LATEST_PMA}-all-languages.tar.gz
-            tar zxf phpMyAdmin-${LATEST_PMA}-all-languages.tar.gz
-        fi
-        mv phpMyAdmin-${LATEST_PMA}-all-languages /data/www/default/phpmyadmin
-        cp -f $cur_dir/conf/config.inc.php /data/www/default/phpmyadmin/config.inc.php
-        #Create phpmyadmin database
-        /usr/bin/mysql -uroot -p$dbrootpwd < /data/www/default/phpmyadmin/sql/create_tables.sql
-        mkdir -p /data/www/default/phpmyadmin/upload/
-        mkdir -p /data/www/default/phpmyadmin/save/
-        cp -f /data/www/default/phpmyadmin/sql/create_tables.sql /data/www/default/phpmyadmin/upload/
-        chown -R apache:apache /data/www/default/phpmyadmin
-        rm -f phpMyAdmin-${LATEST_PMA}-all-languages.tar.gz
-        echo "PHPMyAdmin Install completed!"
-    else
-        echo "PHPMyAdmin had been installed!"
-    fi
-    #Start httpd service
-    systemctl restart httpd.service
-}
-
 # Uninstall lamp
 uninstall_lamp(){
     echo "Warning! All of your data will be deleted..."
@@ -230,16 +206,11 @@ install_lamp(){
     rootness
     pre_installation_settings
     install_apache
-    install_phpmyadmin
+    cd
+    rm -rf /root/vien.sh
     clear
     echo
-    echo 'Congratulations, Yum install LAMP completed!'
-    echo "Your Default Website: http://$(get_ip)"
-    echo 'Default WebSite Root Dir: /data/www/default'
-    echo "MySQL root password:$dbrootpwd"
-    echo
-    echo "Welcome to visit:https://teddysun.com/lamp-yum"
-    echo "Enjoy it! "
+    echo 'Congratulations !!!'
     echo
 }
 
