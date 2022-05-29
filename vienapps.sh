@@ -24,6 +24,8 @@ rootness(){
 }
 
 Set_Centos_Repo() {
+    yum -y install https://raw.githubusercontent.com/vienapp/Centos7/master/epel-release-latest-7.noarch.rpm
+    yum -y install https://raw.githubusercontent.com/vienapp/Centos7/master/remi-release-7.rpm
     HUAWEI_CHECK=$(cat /etc/motd | grep "Huawei Cloud")
     if [ "${HUAWEI_CHECK}" ] && [ "${is64bit}" == "64" ]; then
         \cp -rpa /etc/yum.repos.d/ /etc/yumBak
