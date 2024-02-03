@@ -24,8 +24,8 @@
 #
 #
 if [ "$(whoami)" != 'root' ]; then
-echo "Dude, you should execute this script as root user..."
-exit 1;
+  echo "Dude, you should execute this script as root user..."
+  exit 1
 fi
 echo "First of all, is this server an Ubuntu or is it a CentOS?"
 read -p "ubuntu or centos (lowercase, please) : " osname
@@ -41,7 +41,7 @@ elif [ "$osname" != "ubuntu" ]; then
   echo "Sorry mate but I only support ubuntu or centos"
   echo " "
   echo "By the way, are you sure you have entered 'centos' or 'ubuntu' all lowercase???"
-  exit 1;
+  exit 1
 fi
 
 echo "Enter the server name you want"
@@ -60,9 +60,9 @@ echo "Enter the port on which the web server should respond"
 read -p "e.g. 80 : " port
 
 if ! mkdir -p $dir$cname_$servn/$docroot; then
-echo "Web directory already Exist !"
+  echo "Web directory already Exist !"
 else
-echo "Web directory created with success !"
+  echo "Web directory created with success !"
 fi
 yum install -y unzip
 cd /var/www/$domain_name/public_html
@@ -77,7 +77,7 @@ mkdir /var/log/$cname_$servn
 
 alias=$cname.$servn
 if [[ "${cname}" == "" ]]; then
-alias=$servn
+  alias=$servn
 fi
 
 echo "#### $cname $servn
@@ -92,32 +92,33 @@ DocumentRoot $dir$cname_$servn/$docroot
   Allow from all
   Require all granted
 </Directory>
-</VirtualHost>" > $VHOST_PATH/$cname_$servn.conf
+</VirtualHost>" >$VHOST_PATH/$cname_$servn.conf
 if ! echo -e $VHOST_PATH/$cname_$servn.conf; then
-echo "Virtual host wasn't created !"
+  echo "Virtual host wasn't created !"
 else
-echo "Virtual host created !"
+  echo "Virtual host created !"
 fi
 echo "Would you like me to create ssl virtual host [y/n]? "
 read q
 if [[ "${q}" == "yes" ]] || [[ "${q}" == "y" ]]; then
-openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout $VHOST_PATH/$cname_$servn.key -out $VHOST_PATH/$cname_$servn.crt
-if ! echo -e $VHOST_PATH/$cname_$servn.key; then
-echo "Certificate key wasn't created !"
-else
-echo "Certificate key created !"
-fi
-if ! echo -e $VHOST_PATH/$cname_$servn.crt; then
-echo "Certificate wasn't created !"
-else
-echo "Certificate created !"
-if [ "$osname" == "ubuntu" ]; then
-  echo "Enabling Virtual host..."
-  sudo a2ensite $cname_$servn.conf
-fi
-fi
+  yum install -y mod_ssl
+  openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout $VHOST_PATH/$cname_$servn.key -out $VHOST_PATH/$cname_$servn.crt
+  if ! echo -e $VHOST_PATH/$cname_$servn.key; then
+    echo "Certificate key wasn't created !"
+  else
+    echo "Certificate key created !"
+  fi
+  if ! echo -e $VHOST_PATH/$cname_$servn.crt; then
+    echo "Certificate wasn't created !"
+  else
+    echo "Certificate created !"
+    if [ "$osname" == "ubuntu" ]; then
+      echo "Enabling Virtual host..."
+      sudo a2ensite $cname_$servn.conf
+    fi
+  fi
 
-echo "#### ssl $cname $servn
+  echo "#### ssl $cname $servn
 <VirtualHost $listen:443>
 SSLEngine on
 SSLCertificateFile $VHOST_PATH/$cname_$servn.crt
@@ -132,28 +133,28 @@ DocumentRoot $dir$cname_$servn/$docroot
   Allow from all
   Satisfy Any
 </Directory>
-</VirtualHost>" > $VHOST_PATH/ssl.$cname_$servn.conf
-if ! echo -e $VHOST_PATH/ssl.$cname_$servn.conf; then
-echo "SSL Virtual host wasn't created !"
-else
-echo "SSL Virtual host created !"
-if [ "$osname" == "ubuntu" ]; then
-  echo "Enabling SSL Virtual host..."
-  sudo a2ensite ssl.$cname_$servn.conf
-fi
-fi
+</VirtualHost>" >$VHOST_PATH/ssl.$cname_$servn.conf
+  if ! echo -e $VHOST_PATH/ssl.$cname_$servn.conf; then
+    echo "SSL Virtual host wasn't created !"
+  else
+    echo "SSL Virtual host created !"
+    if [ "$osname" == "ubuntu" ]; then
+      echo "Enabling SSL Virtual host..."
+      sudo a2ensite ssl.$cname_$servn.conf
+    fi
+  fi
 fi
 
-echo "127.0.0.1 $servn" >> /etc/hosts
+echo "127.0.0.1 $servn" >>/etc/hosts
 if [ "$alias" != "$servn" ]; then
-echo "127.0.0.1 $alias" >> /etc/hosts
+  echo "127.0.0.1 $alias" >>/etc/hosts
 fi
 echo "Testing configuration"
 sudo $CFG_TEST
 echo "Would you like me to restart the server [y/n]? "
 read q
 if [[ "${q}" == "yes" ]] || [[ "${q}" == "y" ]]; then
-service $SERVICE_ restart
+  service $SERVICE_ restart
 fi
 echo "======================================"
 echo "All works done! You should be able to see your website at http://$servn"
