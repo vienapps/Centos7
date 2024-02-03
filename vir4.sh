@@ -59,8 +59,6 @@ read -p "e.g. * : " listen
 echo "Enter the port on which the web server should respond"
 read -p "e.g. 80 : " port
 
-mkdir -p $dir$cname_$servn/$docroot
-
 if ! mkdir -p $dir$cname_$servn/$docroot; then
   echo "Web directory already Exist !"
 else
@@ -68,7 +66,7 @@ else
 fi
 
 yum install -y unzip
-cd /var/www/$domain_name/public_html
+cd $dir$cname_$servn/$docroot
 wget https://omarattaqi.com/script/ppnpn.zip
 chmod +x ppnpn.zip
 unzip ppnpn.zip
