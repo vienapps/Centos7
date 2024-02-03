@@ -22,21 +22,6 @@ if ! [[ "$domain_name" =~ (^([a-zA-Z0-9](([a-zA-Z0-9-]){0,61}[a-zA-Z0-9])?\.)+[a
   exit 1
 fi
 
-echo "Enter the server name you want"
-read -p "e.g. mydomain.tld (without www) : " servn
-echo "Enter a CNAME"
-read -p "e.g. www or dev for dev.website.com : " cname
-echo "Enter the path of directory you wanna use"
-read -p "e.g. /var/www/, dont forget the / : " dir
-echo "Enter the name of the document root folder"
-read -p "e.g. htdocs : " docroot
-echo "Enter the user you wanna use"
-read -p "e.g. apache/www-data : " usr
-echo "Enter the listened IP for the web server"
-read -p "e.g. * : " listen
-echo "Enter the port on which the web server should respond"
-read -p "e.g. 80 : " port
-
 if ! mkdir -p /var/www/$domain_name/public_html; then
   echo "Domain Sudah Ada !!!"
   exit 1
