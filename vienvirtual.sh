@@ -22,27 +22,20 @@ if ! [[ "$domain_name" =~ (^([a-zA-Z0-9](([a-zA-Z0-9-]){0,61}[a-zA-Z0-9])?\.)+[a
   exit 1
 fi
 
-if ! mkdir -p /var/www/$domain_name/public_html; then
+if ! mkdir -p /var/www/$domain_name/public; then
   echo "Domain Sudah Ada !!!"
   exit 1
 fi
-
-yum install -y unzip
-cd /var/www/$domain_name/public_html
-wget https://omarattaqi.com/script/ppnpn.zip
-chmod +x ppnpn.zip
-unzip ppnpn.zip
-cd
-# echo "<h1>Domain $domain_name</h1>" >/var/www/$domain_name/public_html/index.php
-chown -R apache:apache /var/www/$domain_name/public_html
-chmod -R 775 /var/www/$domain_name/public_html
+echo "<h1>Domain $domain_name</h1>" >/var/www/$domain_name/public/index.php
+chown -R apache:apache /var/www/$domain_name/public
+chmod -R 775 /var/www/$domain_name/public
 mkdir -p /var/www/$domain_name/log
 
 echo "<VirtualHost *:80>
 ServerName $domain_name
 ServerAlias www.$domain_name
-DocumentRoot /var/www/$domain_name/public_html
-<Directory /var/www/$domain_name/public_html>
+DocumentRoot /var/www/$domain_name/public
+<Directory /var/www/$domain_name/public>
   Options Indexes FollowSymLinks MultiViews
   AllowOverride All
   Order allow,deny
@@ -87,19 +80,19 @@ if [[ "${q}" == "yes" ]] || [[ "${q}" == "y" ]]; then
   fi
 
   echo "<VirtualHost *:443>
-  SSLEngine on
-  SSLCertificateFile $SSL_PATH/$domain_name/$domain_name.crt
-  SSLCertificateKeyFile $SSL_PATH/$domain_name/$domain_name.key
   ServerName $domain_name
   ServerAlias www.$domain_name
-  DocumentRoot /var/www/$domain_name/public_html
-  <Directory /var/www/$domain_name/public_html>
+  DocumentRoot /var/www/$domain_name/public
+  <Directory /var/www/$domain_name/public>
     Options Indexes FollowSymLinks MultiViews
     AllowOverride All
     Order allow,deny
     Allow from all
     Satisfy Any
   </Directory>
+  SSLEngine on
+  SSLCertificateFile $SSL_PATH/$domain_name/$domain_name.crt
+  SSLCertificateKeyFile $SSL_PATH/$domain_name/$domain_name.key
 </VirtualHost>" > $VHOST_PATH/$domain_name.ssl.conf
   if ! echo -e $VHOST_PATH/$domain_name.ssl.conf; then
     echo "=========================================================="
