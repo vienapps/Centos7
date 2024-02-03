@@ -1,82 +1,159 @@
 #!/bin/bash
-
+# This script is used for create virtual hosts on CentOs.
+# Created by alexnogard from http://alexnogard.com
+# Improved by mattmezza from http://matteomerola.me
+# Feel free to modify it
+#   PARAMETERS
+#
+# $usr          - User
+# $dir          - directory of web files
+# $servn        - webserver address without www.
+# $cname        - cname of webserver
+# EXAMPLE
+# Web directory = /var/www/
+# ServerName    = domain.com
+# cname            = devel
+#
+#
+# Check if you execute the script as root user
+#
+# This will check if directory already exist then create it with path : /directory/you/choose/domain.com
+# Set the ownership, permissions and create a test index.php file
+# Create a vhost file domain in your /etc/httpd/conf.d/ directory.
+# And add the new vhost to the hosts.
+#
+#
 if [ "$(whoami)" != 'root' ]; then
-  echo "Maaf, Anda harus menjalankan ini sebagai root !!!"
-  exit 1
+echo "Dude, you should execute this script as root user..."
+exit 1;
+fi
+echo "First of all, is this server an Ubuntu or is it a CentOS?"
+read -p "ubuntu or centos (lowercase, please) : " osname
+
+SERVICE_="apache2"
+VHOST_PATH="/etc/apache2/sites-available"
+CFG_TEST="apachectl -t"
+if [ "$osname" == "centos" ]; then
+  SERVICE_="httpd"
+  VHOST_PATH="/etc/httpd/conf.d"
+  CFG_TEST="service httpd configtest"
+elif [ "$osname" != "ubuntu" ]; then
+  echo "Sorry mate but I only support ubuntu or centos"
+  echo " "
+  echo "By the way, are you sure you have entered 'centos' or 'ubuntu' all lowercase???"
+  exit 1;
 fi
 
-DISTRO=$(cat /etc/*-release | grep -w NAME | cut -d= -f2 | tr -d '"')
-#CentOS Linux
-#Ubuntu
+echo "Enter the server name you want"
+read -p "e.g. mydomain.tld (without www) : " servn
+echo "Enter a CNAME"
+read -p "e.g. www or dev for dev.website.com : " cname
+echo "Enter the path of directory you wanna use"
+read -p "e.g. /var/www/, dont forget the / : " dir
+echo "Enter the name of the document root folder"
+read -p "e.g. htdocs : " docroot
+echo "Enter the user you wanna use"
+read -p "e.g. apache/www-data : " usr
+echo "Enter the listened IP for the web server"
+read -p "e.g. * : " listen
+echo "Enter the port on which the web server should respond"
+read -p "e.g. 80 : " port
 
-if [ "$DISTRO" != 'CentOS Linux' ]; then
-  echo "Maaf !!! OS Anda Bukan Centos"
-  exit 1
-fi
-
-read -p "Masukkan Domain Anda: " domain_name
-if ! [[ "$domain_name" =~ (^([a-zA-Z0-9](([a-zA-Z0-9-]){0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$) ]]; then
-  echo "$domain_name is a not a correct domain name"
-  exit 1
-fi
-echo $domain_name
-sudo yum -y update httpd
-sudo yum -y install httpd
-
-#add port 80 and 443 in firewall
-sudo firewall-cmd --permanent --add-service=http
-sudo firewall-cmd --permanent --add-service=https
-sudo firewall-cmd --reload
-
-#start apache service
-sudo systemctl restart httpd
-
-#check is apache running in server
-if ! pidof httpd >/dev/null; then
-  echo 'Apache Tidak Berjalan !!!'
-  exit 1
-fi
-
-#create domain required folder and files
-sudo mkdir -p /var/www/$domain_name/public_html
-sudo mkdir -p /var/www/$domain_name/log
-sudo chown -R apache:apache /var/www/$domain_name/public_html
-# sudo chown -R $USER:$USER /var/www/$domain_name/public_html
-sudo chmod -R 755 /var/www/$domain_name
-echo "<?php phpinfo(INFO_MODULES); ?>" > /var/www/$domain_name/public_html/index.php
-
-sudo mkdir -p /etc/httpd/sites-available /etc/httpd/sites-enabled
-
-#check if site enabled not added in conf file. then add it in conf file
-if ! grep -Fxq "IncludeOptional sites-enabled/*.conf" /etc/httpd/conf/httpd.conf; then
-  echo "IncludeOptional sites-enabled/*.conf" >> /etc/httpd/conf/httpd.conf
-fi
-
-#virtual host file
-echo "<VirtualHost *:80>
-    ServerName $domain_name
-    ServerAlias $domain_name
-    DocumentRoot /var/www/$domain_name/public_html
-    ErrorLog /var/www/$domain_name/log/error.log
-    CustomLog /var/www/$domain_name/log/requests.log combined
-</VirtualHost>" > /etc/httpd/sites-available/$domain_name.conf
-
-sudo ln -s /etc/httpd/sites-available/$domain_name.conf /etc/httpd/sites-enabled/$domain_name.conf
-
-#recommended apache policy for SE linux
-sudo setsebool -P httpd_unified 1
-
-#apache to log and append the file
-sudo semanage fcontext -a -t httpd_log_t "/var/www/$domain_name/log(/.*)?"
-sudo restorecon -R -v /var/www/$domain_name/log
-
-#restart apache
-sudo systemctl restart httpd
-
-if pidof httpd >/dev/null; then
-  echo 'Virtual Host Berhasil Di Buat'
-  echo 'Silahkan Kunjungi http://'$domain_name
+if ! mkdir -p $dir$cname_$servn/$docroot; then
+echo "Web directory already Exist !"
 else
-  echo 'Apache restart gagal !!!'
-  exit 1
+echo "Web directory created with success !"
 fi
+echo "<h1>$cname $servn</h1>" > $dir$cname_$servn/$docroot/index.html
+chown -R $usr:$usr $dir$cname_$servn/$docroot
+chmod -R '775' $dir$cname_$servn/$docroot
+mkdir /var/log/$cname_$servn
+
+alias=$cname.$servn
+if [[ "${cname}" == "" ]]; then
+alias=$servn
+fi
+
+echo "#### $cname $servn
+<VirtualHost $listen:$port>
+ServerName $servn
+ServerAlias $alias
+DocumentRoot $dir$cname_$servn/$docroot
+<Directory $dir$cname_$servn/$docroot>
+Options Indexes FollowSymLinks MultiViews
+AllowOverride All
+Order allow,deny
+Allow from all
+Require all granted
+</Directory>
+</VirtualHost>" > $VHOST_PATH/$cname_$servn.conf
+if ! echo -e $VHOST_PATH/$cname_$servn.conf; then
+echo "Virtual host wasn't created !"
+else
+echo "Virtual host created !"
+fi
+echo "Would you like me to create ssl virtual host [y/n]? "
+read q
+if [[ "${q}" == "yes" ]] || [[ "${q}" == "y" ]]; then
+yum install -y openssl mod_ssl
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout $VHOST_PATH/$cname_$servn.key -out $VHOST_PATH/$cname_$servn.crt
+if ! echo -e $VHOST_PATH/$cname_$servn.key; then
+echo "Certificate key wasn't created !"
+else
+echo "Certificate key created !"
+fi
+if ! echo -e $VHOST_PATH/$cname_$servn.crt; then
+echo "Certificate wasn't created !"
+else
+echo "Certificate created !"
+if [ "$osname" == "ubuntu" ]; then
+  echo "Enabling Virtual host..."
+  sudo a2ensite $cname_$servn.conf
+fi
+fi
+
+echo "#### ssl $cname $servn
+<VirtualHost $listen:443>
+SSLEngine on
+SSLCertificateFile $VHOST_PATH/$cname_$servn.crt
+SSLCertificateKeyFile $VHOST_PATH/$cname_$servn.key
+ServerName $servn
+ServerAlias $alias
+DocumentRoot $dir$cname_$servn/$docroot
+<Directory $dir$cname_$servn/$docroot>
+Options Indexes FollowSymLinks MultiViews
+AllowOverride All
+Order allow,deny
+Allow from all
+Satisfy Any
+</Directory>
+</VirtualHost>" > $VHOST_PATH/ssl.$cname_$servn.conf
+if ! echo -e $VHOST_PATH/ssl.$cname_$servn.conf; then
+echo "SSL Virtual host wasn't created !"
+else
+echo "SSL Virtual host created !"
+if [ "$osname" == "ubuntu" ]; then
+  echo "Enabling SSL Virtual host..."
+  sudo a2ensite ssl.$cname_$servn.conf
+fi
+fi
+fi
+
+echo "127.0.0.1 $servn" >> /etc/hosts
+if [ "$alias" != "$servn" ]; then
+echo "127.0.0.1 $alias" >> /etc/hosts
+fi
+echo "Testing configuration"
+sudo $CFG_TEST
+echo "Would you like me to restart the server [y/n]? "
+read q
+if [[ "${q}" == "yes" ]] || [[ "${q}" == "y" ]]; then
+service $SERVICE_ restart
+fi
+echo "======================================"
+echo "All works done! You should be able to see your website at http://$servn"
+echo ""
+echo "Share the love! <3"
+echo "======================================"
+echo ""
+echo "Wanna contribute to improve this script? Found a bug? https://github.com/mattmezza/vhost-creator"
