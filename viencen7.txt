@@ -1,0 +1,18 @@
+#!/bin/sh
+# To add this repository please do:
+
+export EDITOR=/bin/nano
+systemctl start httpd.service && systemctl enable httpd.service && systemctl restart httpd.service
+systemctl start firewalld && systemctl enable firewalld && systemctl restart firewalld
+systemctl start sshd.service && systemctl enable sshd.service && systemctl restart sshd.service
+firewall-cmd --permanent --zone=public --add-port=80/tcp && firewall-cmd --permanent --zone=public --add-port=433/tcp && firewall-cmd --reload
+cp /etc/httpd/conf/httpd.conf /etc/httpd/conf/httpd.conf.backup
+wget -O /etc/httpd/conf/httpd.conf "https://raw.githubusercontent.com/vienapp/Centos7/master/httpd.conf" && systemctl restart httpd.service
+echo "<?php phpinfo(INFO_MODULES); ?>" > /var/www/html/index.php
+yum -y remove php* && yum-config-manager --disable 'remi-php*' && yum-config-manager --enable remi-php80 && yum -y install php php-{cli,fpm,mysqlnd,zip,devel,gd,mbstring,curl,xml,pear,bcmath,json}
+chown -R apache.apache /var/www && chmod 755 /var/www
+cp /etc/php.ini /etc/php.ini.backup
+sed -i "s/;date.timezone =/date.timezone = Asia\/Jakarta/" /etc/php.ini
+yum -y update
+yum clean all
+reboot
