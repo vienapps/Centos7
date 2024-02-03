@@ -1,47 +1,25 @@
 #!/bin/bash
-# This script is used for create virtual hosts on CentOs.
-# Created by alexnogard from http://alexnogard.com
-# Improved by mattmezza from http://matteomerola.me
-# Feel free to modify it
-#   PARAMETERS
-#
-# $usr          - User
-# $dir          - directory of web files
-# $servn        - webserver address without www.
-# $cname        - cname of webserver
-# EXAMPLE
-# Web directory = /var/www/
-# ServerName    = domain.com
-# cname            = devel
-#
-#
-# Check if you execute the script as root user
-#
-# This will check if directory already exist then create it with path : /directory/you/choose/domain.com
-# Set the ownership, permissions and create a test index.php file
-# Create a vhost file domain in your /etc/httpd/conf.d/ directory.
-# And add the new vhost to the hosts.
-#
-#
-if [ "$(whoami)" != 'root' ]; then
-echo "Dude, you should execute this script as root user..."
-exit 1;
-fi
-echo "First of all, is this server an Ubuntu or is it a CentOS?"
-read -p "ubuntu or centos (lowercase, please) : " osname
 
-SERVICE_="apache2"
-VHOST_PATH="/etc/apache2/sites-available"
-CFG_TEST="apachectl -t"
-if [ "$osname" == "centos" ]; then
-  SERVICE_="httpd"
-  VHOST_PATH="/etc/httpd/conf.d"
-  CFG_TEST="service httpd configtest"
-elif [ "$osname" != "ubuntu" ]; then
-  echo "Sorry mate but I only support ubuntu or centos"
-  echo " "
-  echo "By the way, are you sure you have entered 'centos' or 'ubuntu' all lowercase???"
-  exit 1;
+if [ "$(whoami)" != 'root' ]; then
+  echo "Maaf, Anda harus menjalankan ini sebagai root !!!"
+  exit 1
+fi
+
+DISTRO=$(cat /etc/*-release | grep -w NAME | cut -d= -f2 | tr -d '"')
+if [ "$DISTRO" != 'CentOS Linux' ]; then
+  echo "Maaf !!! OS Anda Bukan Centos"
+  exit 1
+fi
+
+SERVICE_="httpd"
+VHOST_PATH="/etc/httpd/conf.d"
+SSL_PATH="/etc/httpd/vienssl"
+CFG_TEST="service httpd configtest"
+
+read -p "Masukkan Domain/SubDomain Tanpa www: " domain_name
+if ! [[ "$domain_name" =~ (^([a-zA-Z0-9](([a-zA-Z0-9-]){0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$) ]]; then
+  echo "$domain_name Nama Domain Salah !!! Silahkan Jalankan Ulang Scriptnya !!!"
+  exit 1
 fi
 
 echo "Enter the server name you want"
@@ -59,101 +37,101 @@ read -p "e.g. * : " listen
 echo "Enter the port on which the web server should respond"
 read -p "e.g. 80 : " port
 
-if ! mkdir -p $dir$cname_$servn/$docroot; then
-echo "Web directory already Exist !"
-else
-echo "Web directory created with success !"
-fi
-echo "<h1>$cname $servn</h1>" > $dir$cname_$servn/$docroot/index.html
-chown -R $usr:$usr $dir$cname_$servn/$docroot
-chmod -R '775' $dir$cname_$servn/$docroot
-mkdir /var/log/$cname_$servn
-
-alias=$cname.$servn
-if [[ "${cname}" == "" ]]; then
-alias=$servn
+if ! mkdir -p /var/www/$domain_name/public_html; then
+  echo "Domain Sudah Ada !!!"
+  exit 1
 fi
 
-echo "#### $cname $servn
-<VirtualHost $listen:$port>
-ServerName $servn
-ServerAlias $alias
-DocumentRoot $dir$cname_$servn/$docroot
-<Directory $dir$cname_$servn/$docroot>
-Options Indexes FollowSymLinks MultiViews
-AllowOverride All
-Order allow,deny
-Allow from all
-Require all granted
-</Directory>
-</VirtualHost>" > $VHOST_PATH/$cname_$servn.conf
-if ! echo -e $VHOST_PATH/$cname_$servn.conf; then
-echo "Virtual host wasn't created !"
+echo "<h1>Domain $domain_name</h1>" >/var/www/$domain_name/public_html/index.php
+chown -R apache:apache /var/www/$domain_name/public_html
+chmod -R 775 /var/www/$domain_name/public_html
+mkdir /var/www/$domain_name/log
+
+echo "<VirtualHost *:80>
+      ServerName $domain_name
+      ServerAlias www.$domain_name
+      DocumentRoot /var/www/$domain_name/public_html
+      ErrorLog /var/www/$domain_name/log/error.log
+      CustomLog /var/www/$domain_name/log/requests.log combined
+      <Directory /var/www/$domain_name/public_html>
+        Options Indexes FollowSymLinks MultiViews
+        AllowOverride All
+        Order allow,deny
+        Allow from all
+        Require all granted
+      </Directory>
+      </VirtualHost>" > $VHOST_PATH/$domain_name.conf
+if ! echo -e $VHOST_PATH/$domain_name.conf; then
+  echo "=========================================================="
+  echo "Gagal Membuat Virtual Host !!!"
+  echo "=========================================================="
+  exit 1
 else
-echo "Virtual host created !"
+  echo "=========================================================="
+  echo "Berhasil Membuat Virtual Host Dengan Domain $domain_name"
+  echo "=========================================================="
 fi
-echo "Would you like me to create ssl virtual host [y/n]? "
+echo "Ingin Membuat SSL ? [y/n]? "
 read q
 if [[ "${q}" == "yes" ]] || [[ "${q}" == "y" ]]; then
-yum install -y openssl mod_ssl
-openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout $VHOST_PATH/$cname_$servn.key -out $VHOST_PATH/$cname_$servn.crt
-if ! echo -e $VHOST_PATH/$cname_$servn.key; then
-echo "Certificate key wasn't created !"
-else
-echo "Certificate key created !"
-fi
-if ! echo -e $VHOST_PATH/$cname_$servn.crt; then
-echo "Certificate wasn't created !"
-else
-echo "Certificate created !"
-if [ "$osname" == "ubuntu" ]; then
-  echo "Enabling Virtual host..."
-  sudo a2ensite $cname_$servn.conf
-fi
+  mkdir $SSL_PATH/$domain_name
+  yum install -y openssl mod_ssl
+  openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout $SSL_PATH/$domain_name/$domain_name.key -out $SSL_PATH/$domain_name/$domain_name.crt
+  if ! echo -e $SSL_PATH/$domain_name/$domain_name.key; then
+    echo "=========================================================="
+    echo "Certificate Key SSL Gagal Dibuat !"
+    echo "=========================================================="
+  else
+    echo "=========================================================="
+    echo "Certificate key SSL Berhasil Dibuat !"
+    echo "=========================================================="
+  fi
+  if ! echo -e $SSL_PATH/$domain_name/$domain_name.crt; then
+    echo "=========================================================="
+    echo "Certificate SSL Gagal Dibuat !"
+    echo "=========================================================="
+  else
+    echo "=========================================================="
+    echo "Certificate SSL Berhasil Dibuat !"
+    echo "=========================================================="
+  fi
+
+  echo "<VirtualHost *:443>
+          ServerName $domain_name
+          ServerAlias www.$domain_name
+          DocumentRoot /var/www/$domain_name/public_html
+          ErrorLog /var/www/$domain_name/log/error.log
+          CustomLog /var/www/$domain_name/log/requests.log combined
+          SSLEngine on
+          SSLCertificateFile $SSL_PATH/$domain_name/$domain_name.crt
+          SSLCertificateKeyFile $SSL_PATH/$domain_name/$domain_name.key
+          <Directory /var/www/$domain_name/public_html>
+            Options Indexes FollowSymLinks MultiViews
+            AllowOverride All
+            Order allow,deny
+            Allow from all
+            Satisfy Any
+          </Directory>
+        </VirtualHost>" > $VHOST_PATH/ssl.$domain_name.conf
+  if ! echo -e $VHOST_PATH/ssl.$domain_name.conf; then
+    echo "=========================================================="
+    echo "SSL Virtual Host Gagal Dibuat !"
+    echo "=========================================================="
+  else
+    echo "=========================================================="
+    echo "SSL Virtual Host Berhasil Dibuat !"
+    echo "=========================================================="
+  fi
 fi
 
-echo "#### ssl $cname $servn
-<VirtualHost $listen:443>
-SSLEngine on
-SSLCertificateFile $VHOST_PATH/$cname_$servn.crt
-SSLCertificateKeyFile $VHOST_PATH/$cname_$servn.key
-ServerName $servn
-ServerAlias $alias
-DocumentRoot $dir$cname_$servn/$docroot
-<Directory $dir$cname_$servn/$docroot>
-Options Indexes FollowSymLinks MultiViews
-AllowOverride All
-Order allow,deny
-Allow from all
-Satisfy Any
-</Directory>
-</VirtualHost>" > $VHOST_PATH/ssl.$cname_$servn.conf
-if ! echo -e $VHOST_PATH/ssl.$cname_$servn.conf; then
-echo "SSL Virtual host wasn't created !"
-else
-echo "SSL Virtual host created !"
-if [ "$osname" == "ubuntu" ]; then
-  echo "Enabling SSL Virtual host..."
-  sudo a2ensite ssl.$cname_$servn.conf
-fi
-fi
-fi
+echo "127.0.0.1 $domain_name" >> /etc/hosts
+echo "127.0.0.1 www.$domain_name" >> /etc/hosts
 
-echo "127.0.0.1 $servn" >> /etc/hosts
-if [ "$alias" != "$servn" ]; then
-echo "127.0.0.1 $alias" >> /etc/hosts
-fi
-echo "Testing configuration"
-sudo $CFG_TEST
-echo "Would you like me to restart the server [y/n]? "
-read q
-if [[ "${q}" == "yes" ]] || [[ "${q}" == "y" ]]; then
-service $SERVICE_ restart
-fi
-echo "======================================"
-echo "All works done! You should be able to see your website at http://$servn"
-echo ""
-echo "Share the love! <3"
-echo "======================================"
-echo ""
-echo "Wanna contribute to improve this script? Found a bug? https://github.com/mattmezza/vhost-creator"
+systemctl restart httpd
+
+echo "=========================================================="
+echo "Berhasil Membuat Virtual Host"
+echo "Domain Anda http://$domain_name"
+echo "=========================================================="
+echo "Vien Apps Solution https://vienapps.com/"
+echo "=========================================================="
