@@ -97,8 +97,8 @@ if [[ "${q}" == "yes" ]] || [[ "${q}" == "y" ]]; then
             Allow from all
             Satisfy Any
           </Directory>
-        </VirtualHost>" > $VHOST_PATH/ssl.$domain_name.conf
-  if ! echo -e $VHOST_PATH/ssl.$domain_name.conf; then
+        </VirtualHost>" > $VHOST_PATH/$domain_name.ssl.conf
+  if ! echo -e $VHOST_PATH/$domain_name.ssl.conf; then
     echo "=========================================================="
     echo "SSL Virtual Host Gagal Dibuat !"
     echo "=========================================================="
