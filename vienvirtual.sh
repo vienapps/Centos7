@@ -30,7 +30,7 @@ fi
 echo "<h1>Domain $domain_name</h1>" >/var/www/$domain_name/public_html/index.php
 chown -R apache:apache /var/www/$domain_name/public_html
 chmod -R 775 /var/www/$domain_name/public_html
-mkdir /var/www/$domain_name/log
+mkdir -p /var/www/$domain_name/log
 
 echo "<VirtualHost *:80>
       ServerName $domain_name
@@ -59,7 +59,7 @@ fi
 echo "Ingin Membuat SSL ? [y/n]? "
 read q
 if [[ "${q}" == "yes" ]] || [[ "${q}" == "y" ]]; then
-  mkdir $SSL_PATH/$domain_name
+  mkdir -p $SSL_PATH/$domain_name
   yum install -y openssl mod_ssl
   openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout $SSL_PATH/$domain_name/$domain_name.key -out $SSL_PATH/$domain_name/$domain_name.crt
   if ! echo -e $SSL_PATH/$domain_name/$domain_name.key; then
