@@ -1,10 +1,10 @@
-# MariaDB 10.11 CentOS repository list - created 2025-05-10 22:30 UTC
+# MariaDB 10.11 CentOS repository list - created 2025-05-11 09:00 UTC
 # https://mariadb.org/download/
 [mariadb]
 name = MariaDB
 # rpm.mariadb.org is a dynamic mirror if your preferred mirror goes offline. See https://mariadb.org/mirrorbits/ for details.
 # baseurl = https://rpm.mariadb.org/10.11/centos/$releasever/$basearch
-baseurl = https://mr.heru.id/mariadb/yum/10.11/centos/$releasever/$basearch
+baseurl = https://mirror.citrahost.com/mariadb/yum/10.11/centos/$releasever/$basearch
 # gpgkey = https://rpm.mariadb.org/RPM-GPG-KEY-MariaDB
-gpgkey = https://mr.heru.id/mariadb/yum/RPM-GPG-KEY-MariaDB
+gpgkey = https://mirror.citrahost.com/mariadb/yum/RPM-GPG-KEY-MariaDB
 gpgcheck = 1
